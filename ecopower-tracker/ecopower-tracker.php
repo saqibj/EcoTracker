@@ -3,7 +3,7 @@
 Plugin Name: EcoPower Tracker
 Description: Calculate and display power generation and carbon offset for wind and solar plants.
 Version: 1.0
-Author: Your Name
+Author: Saqib Jawaid
 */
 
 register_activation_hook(__FILE__, 'ecopower_tracker_install');
