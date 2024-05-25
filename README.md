@@ -3,98 +3,56 @@ EcoPower Tracker is a WordPress plugin that calculates and displays the total po
 
 ---
 
-## EcoPower Tracker WordPress Plugin
+# EcoPower Tracker
 
-EcoPower Tracker is a WordPress plugin designed to track and manage data for renewable energy projects, including both wind and solar power plants. The plugin provides real-time calculations of power generation and carbon offset, and includes functionalities to add, edit, and delete project data.
+EcoPower Tracker is a WordPress plugin that allows you to track power generation and carbon offset for wind and solar plants. This plugin includes features such as data display options, shortcode generation, and data management.
 
 ## Features
 
-- Add, edit, and delete project data for wind and solar power plants.
-- Real-time calculations of power generation and carbon offset.
-- Display project data in a table format on the WordPress admin dashboard.
-- Export and import project data via CSV.
-- Responsive and user-friendly admin interface.
+- **Data Display Options:**
+  - Show combined results from the date of activation to the present.
+  - Display power generated and carbon offset for individual projects.
+  - Option to choose individual projects or subgroups for detailed view.
+
+- **Shortcode Generation:**
+  - Shortcodes for displaying various data views:
+    - `[total_power_generated]` - Total power generated
+    - `[total_carbon_offset]` - Total carbon offset
+    - Individual and subgroup shortcodes available
+
+- **Data Management:**
+  - View all projects in the admin panel.
+  - Export all project data as a CSV file.
+  - Import data by uploading a CSV file.
+  - Edit and remove existing data.
 
 ## Installation
 
-1. Download the EcoPower Tracker plugin files and upload them to the `/wp-content/plugins/ecopower-tracker` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Navigate to the 'EcoPower Tracker' page in the WordPress admin menu to start managing your projects.
+1. Upload the `EcoPower-Tracker` folder to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Configure the plugin settings from the 'EcoPower Tracker' menu in the admin panel.
 
-## Usage
+## CSV File Formatting
 
-1. Navigate to the 'EcoPower Tracker' page from the WordPress admin menu.
-2. Click the 'Add New' button to add a new project.
-3. Fill in the project details and click 'Save' to add the project.
-4. Use the 'Edit' and 'Delete' links next to each project in the project list to manage your projects.
+Ensure your CSV file is formatted with the following fields in this order:
+- Project#
+- Project Company
+- Project Name
+- Project Location
+- Type of Plant (Wind or Solar)
+- Project CUF
+- Generation Capacity (in KWs)
+- Date of Activation
 
-## File Structure
+## Output Format
 
-The plugin file structure is as follows:
+- Numerical outputs use 1,000 delimiters (",") for readability.
+- Power generated values convert to MWh if equal to or greater than 1000 KWh, and vice versa.
 
-ecopower-tracker/
-├── css/
-│ └── admin-style.css
-├── js/
-│ └── admin-script.js
-├── includes/
-│ ├── admin-page.php
-│ ├── enqueue-scripts.php
-│ ├── project-functions.php
-│ └── csv-handler.php
-├── templates/
-│ └── project-list.php
-├── ecopower-tracker.php
-└── README.md
+## Contributing
 
-
-### `css/admin-style.css`
-
-This file contains the CSS styles for the admin pages.
-
-### `js/admin-script.js`
-
-This file contains the JavaScript functions for the admin pages, including confirmation prompts for deleting projects.
-
-### `includes/admin-page.php`
-
-This file contains the code to generate the admin pages for the plugin.
-
-### `includes/enqueue-scripts.php`
-
-This file contains the code to enqueue the necessary CSS and JavaScript files for the admin pages.
-
-### `includes/project-functions.php`
-
-This file contains the functions to handle adding, editing, and deleting projects.
-
-### `includes/csv-handler.php`
-
-This file contains the functions to handle exporting and importing project data via CSV.
-
-### `templates/project-list.php`
-
-This file contains the template for displaying the project list on the admin pages.
-
-### `ecopower-tracker.php`
-
-This is the main plugin file that includes all necessary components and hooks into WordPress.
-
-## Changelog
-
-### 1.0.1
-
-- Added the ability to edit and delete individual projects.
-- Updated the file structure to include separate CSS and JavaScript files for the admin pages.
-- Enhanced the user interface with confirmation prompts for deleting projects.
-
-### 1.0.0
-
-- Initial release with basic functionality for adding, viewing, and managing projects.
+Contributions are welcome! Please fork the repository and submit a pull request for review.
 
 ## License
 
 This plugin is licensed under the GPLv3 or later.
-
-
-

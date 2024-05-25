@@ -1,0 +1,6 @@
+<div class="wrap">
+    <h1>EcoPower Tracker Dashboard</h1>
+    <p>Total Power Generated: <?php echo number_format(ecopower_tracker_calculate_total_power(), 0, '.', ','); ?> KWh</p>
+    <p>Total Carbon Offset: <?php echo number_format(ecopower_tracker_calculate_total_carbon(), 0, '.', ','); ?> kg CO2</p>
+    <!-- Additional dashboard content can be added here -->
+</div>
