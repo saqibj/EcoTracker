@@ -1,9 +1,4 @@
 /* Add your custom styles here */
 .wrap {
-    padding: 20px;
-}
-
-.wrap h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
+    margin: 20px;
 }

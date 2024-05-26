@@ -11,3 +11,4 @@ function ecopower_tracker_total_carbon_shortcode() {
 add_shortcode('total_carbon_offset', 'ecopower_tracker_total_carbon_shortcode');
 
 // Additional shortcodes can be defined similarly
+?>

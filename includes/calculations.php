@@ -11,10 +11,8 @@ function ecopower_tracker_calculate_co2_offset($power_generated, $emission_facto
 
 // Function to calculate total power generated
 function ecopower_tracker_calculate_total_power() {
-    // Fetch data and calculate total power
     $total_power = 0;
     // Example: Fetch all projects from the database
-    // Assuming we have a function get_all_projects() that returns an array of projects
     $projects = get_all_projects();
     foreach ($projects as $project) {
         $generation_capacity = $project['generation_capacity']; // KW
@@ -27,10 +25,8 @@ function ecopower_tracker_calculate_total_power() {
 
 // Function to calculate total carbon offset
 function ecopower_tracker_calculate_total_carbon() {
-    // Fetch data and calculate total carbon offset
     $total_carbon = 0;
     // Example: Fetch all projects from the database
-    // Assuming we have a function get_all_projects() that returns an array of projects
     $projects = get_all_projects();
     foreach ($projects as $project) {
         $generation_capacity = $project['generation_capacity']; // KW

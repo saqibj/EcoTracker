@@ -3,7 +3,7 @@
  * Plugin Name: EcoPower Tracker
  * Description: A plugin to track power generation and carbon offset for wind and solar plants.
  * Version: 1.0
- * Author: Saqib Jawaid
+ * Author: Saqibn
  */
 
 // Define constants
@@ -21,3 +21,16 @@ function ecopower_tracker_enqueue_scripts() {
     wp_enqueue_script('ecopower-tracker-scripts', plugins_url('js/scripts.js', __FILE__), array('jquery'), null, true);
 }
 add_action('wp_enqueue_scripts', 'ecopower_tracker_enqueue_scripts');
+
+// Activation hook
+function ecopower_tracker_activate() {
+    // Code to run on plugin activation
+}
+register_activation_hook(__FILE__, 'ecopower_tracker_activate');
+
+// Deactivation hook
+function ecopower_tracker_deactivate() {
+    // Code to run on plugin deactivation
+}
+register_deactivation_hook(__FILE__, 'ecopower_tracker_deactivate');
+?>
