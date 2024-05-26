@@ -1,4 +1,11 @@
 <?php
+// Function to fetch all projects from the database
+function get_all_projects() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+    return $wpdb->get_results("SELECT * FROM $table_name", ARRAY_A);
+}
+
 // Function to calculate power generated for a project
 function ecopower_tracker_calculate_power_generated($generation_capacity, $cuf, $hours) {
     return $generation_capacity * $cuf * $hours;
@@ -12,7 +19,7 @@ function ecopower_tracker_calculate_co2_offset($power_generated, $emission_facto
 // Function to calculate total power generated
 function ecopower_tracker_calculate_total_power() {
     $total_power = 0;
-    // Example: Fetch all projects from the database
+    // Fetch all projects from the database
     $projects = get_all_projects();
     foreach ($projects as $project) {
         $generation_capacity = $project['generation_capacity']; // KW
@@ -26,7 +33,7 @@ function ecopower_tracker_calculate_total_power() {
 // Function to calculate total carbon offset
 function ecopower_tracker_calculate_total_carbon() {
     $total_carbon = 0;
-    // Example: Fetch all projects from the database
+    // Fetch all projects from the database
     $projects = get_all_projects();
     foreach ($projects as $project) {
         $generation_capacity = $project['generation_capacity']; // KW
@@ -38,10 +45,10 @@ function ecopower_tracker_calculate_total_carbon() {
     return $total_carbon;
 }
 
-// Example usage of total calculations:
-$total_power_generated = ecopower_tracker_calculate_total_power();
-$total_co2_offset = ecopower_tracker_calculate_total_carbon();
+// Example usage of total calculations (commented out to avoid output during activation):
+// $total_power_generated = ecopower_tracker_calculate_total_power();
+// $total_co2_offset = ecopower_tracker_calculate_total_carbon();
 
-echo "Total Power Generated: " . number_format($total_power_generated, 0, '.', ',') . " KWh\n";
-echo "Total CO2 Offset: " . number_format($total_co2_offset, 0, '.', ',') . " kg CO2\n";
+// echo "Total Power Generated: " . number_format($total_power_generated, 0, '.', ',') . " KWh\n";
+// echo "Total CO2 Offset: " . number_format($total_co2_offset, 0, '.', ',') . " kg CO2\n";
 ?>
