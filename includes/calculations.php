@@ -44,11 +44,4 @@ function ecopower_tracker_calculate_total_carbon() {
     }
     return $total_carbon;
 }
-
-// Example usage of total calculations (commented out to avoid output during activation):
-// $total_power_generated = ecopower_tracker_calculate_total_power();
-// $total_co2_offset = ecopower_tracker_calculate_total_carbon();
-
-// echo "Total Power Generated: " . number_format($total_power_generated, 0, '.', ',') . " KWh\n";
-// echo "Total CO2 Offset: " . number_format($total_co2_offset, 0, '.', ',') . " kg CO2\n";
 ?>

@@ -1,3 +1,4 @@
+<?php
 // Include necessary files
 include_once ECOPOWER_TRACKER_DIR . 'admin/edit-project.php';
 
@@ -81,3 +82,4 @@ function ecopower_tracker_handle_delete_project() {
     }
 }
 add_action('admin_post_ecopower_tracker_delete_project', 'ecopower_tracker_handle_delete_project');
+?>
