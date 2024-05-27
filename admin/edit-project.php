@@ -53,10 +53,9 @@
                 <input type="submit" name="ecopower_tracker_edit_submit" id="submit" class="button button-primary" value="Save Changes">
             </p>
         </form>
-        <?php
-        else:
-            echo '<p>Project not found.</p>';
-        endif;
+        <?php else: ?>
+            <p>Project not found.</p>
+        <?php endif;
     } else {
         echo '<p>Invalid project number.</p>';
     }
