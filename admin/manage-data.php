@@ -19,7 +19,7 @@
             echo '<td>' . esc_html($project['generation_capacity']) . '</td>';
             echo '<td>' . esc_html($project['date_of_activation']) . '</td>';
             echo '<td>';
-            echo '<a href="' . esc_url(admin_url('admin-post.php?action=ecopower_tracker_edit_project&project_number=' . $project['project_number'])) . '">Edit</a> | ';
+            echo '<a href="' . esc_url(admin_url('admin.php?page=ecopower-tracker-manage&action=edit&project_number=' . $project['project_number'])) . '">Edit</a> | ';
             echo '<a href="' . esc_url(admin_url('admin-post.php?action=ecopower_tracker_delete_project&project_number=' . $project['project_number'])) . '" onclick="return confirm(\'Are you sure you want to delete this project?\')">Delete</a>';
             echo '</td>';
             echo '</tr>';
