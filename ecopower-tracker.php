@@ -2,7 +2,7 @@
 /*
 Plugin Name: EcoPower Tracker
 Description: A plugin to track power generation and CO2 offset for wind and solar plants.
-Version: 1.0.1a
+Version: 1.0.1b
 Author: Saqib Jawaid
 */
 
