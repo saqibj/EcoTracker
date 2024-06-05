@@ -93,7 +93,7 @@ function ecopower_tracker_admin_page() {
         <form method="post" enctype="multipart/form-data" action="<?php echo admin_url('admin-post.php'); ?>">
             <input type="hidden" name="action" value="ecopower_tracker_import_csv" />
             <input type="file" name="ecopower_tracker_csv" />
-            <?php submit_button(__('Import CSV', 'ecopower-tracker')); ?>
+    <?php submit_button(__('Import CSV', 'ecopower-tracker')); ?>
         </form>
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
             <input type="hidden" name="action" value="ecopower_tracker_export_csv" />
@@ -111,7 +111,6 @@ function ecopower_tracker_admin_page() {
     </div>
     <?php
 }
-
 // Handle form submission for adding/editing projects
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['project_company'])) {
     global $wpdb;

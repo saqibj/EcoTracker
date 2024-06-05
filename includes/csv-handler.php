@@ -42,6 +42,15 @@ add_action('admin_post_ecopower_tracker_export_csv', 'ecopower_tracker_export_cs
 
 // Function to import project data from CSV
 function ecopower_tracker_import_csv() {
+    error_log('Starting CSV import...');
+    
+    // Check for file upload errors
+    if ($_FILES['ecopower_tracker_csv']['error'] !== UPLOAD_ERR_OK) {
+        error_log('File upload error code: ' . $_FILES['ecopower_tracker_csv']['error']);
+        wp_redirect(admin_url('admin.php?page=ecopower-tracker&import_status=error'));
+        exit;
+    }
+    
     if (isset($_POST['ecopower_tracker_import_csv']) && !empty($_FILES['ecopower_tracker_csv']['tmp_name'])) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_projects';
@@ -58,12 +67,22 @@ function ecopower_tracker_import_csv() {
         // Skip the header row
         fgetcsv($csv_file);
 
+        $row_count = 0;
         while ($row = fgetcsv($csv_file)) {
             // Check if row has correct number of columns
             if (count($row) !== 7) {
-                error_log('Error: CSV row has incorrect number of columns.');
+                error_log('Error: CSV row has incorrect number of columns. Row: ' . json_encode($row));
                 continue;
             }
+
+            // Convert date to Y-m-d format
+            $date = DateTime::createFromFormat('d/m/Y', $row[6]);
+            if ($date === false) {
+                error_log('Error: Invalid date format. Row: ' . json_encode($row));
+                continue;
+            }
+
+            $activation_date = $date->format('Y-m-d');
 
             $result = $wpdb->insert($table_name, array(
                 'project_company' => sanitize_text_field($row[0]),
@@ -72,15 +91,18 @@ function ecopower_tracker_import_csv() {
                 'plant_type' => sanitize_text_field($row[3]),
                 'project_cuf' => floatval($row[4]),
                 'generation_capacity' => floatval($row[5]),
-                'activation_date' => sanitize_text_field($row[6])
+                'activation_date' => $activation_date
             ));
 
             if ($result === false) {
-                error_log('Error: Failed to insert data into the database.');
+                error_log('Error: Failed to insert data into the database. Row: ' . json_encode($row));
+            } else {
+                $row_count++;
             }
         }
 
         fclose($csv_file);
+        error_log('CSV import completed. Rows imported: ' . $row_count);
         wp_redirect(admin_url('admin.php?page=ecopower-tracker&import_status=success'));
         exit;
     } else {
