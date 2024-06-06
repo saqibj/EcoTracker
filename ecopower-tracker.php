@@ -159,4 +159,14 @@ function ecopower_tracker_process_import_export() {
         ecopower_tracker_handle_csv_export();
     }
 }
+
+// Placeholder function for settings page
+function ecopower_tracker_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1><?php _e( 'Settings', 'ecopower-tracker' ); ?></h1>
+        <p><?php _e( 'Settings page content goes here.', 'ecopower-tracker' ); ?></p>
+    </div>
+    <?php
+}
 ?>
