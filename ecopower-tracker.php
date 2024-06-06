@@ -75,14 +75,14 @@ function ecopower_tracker_admin_menu() {
         __( 'EcoPower Tracker', 'ecopower-tracker' ),
         __( 'EcoPower Tracker', 'ecopower-tracker' ),
         'manage_options',
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         'ecopower_tracker_dashboard_content',
         'dashicons-chart-line',  // Use a built-in dashicon
         6
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'Dashboard', 'ecopower-tracker' ),
         __( 'Dashboard', 'ecopower-tracker' ),
         'manage_options',
@@ -91,7 +91,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'All Projects', 'ecopower-tracker' ),
         __( 'All Projects', 'ecopower-tracker' ),
         'manage_options',
@@ -100,7 +100,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'Add New Project', 'ecopower-tracker' ),
         __( 'Add New Project', 'ecopower-tracker' ),
         'manage_options',
@@ -109,7 +109,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'Import/Export Projects', 'ecopower-tracker' ),
         __( 'Import/Export', 'ecopower-tracker' ),
         'manage_options',
@@ -118,7 +118,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'Settings', 'ecopower-tracker' ),
         __( 'Settings', 'ecopower-tracker' ),
         'manage_options',
@@ -127,7 +127,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'Reporting Intervals', 'ecopower-tracker' ),
         __( 'Reporting Intervals', 'ecopower-tracker' ),
         'manage_options',
@@ -136,7 +136,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker',
+        'ecopower-tracker-dashboard',
         __( 'About', 'ecopower-tracker' ),
         __( 'About', 'ecopower-tracker' ),
         'manage_options',
@@ -162,10 +162,39 @@ function ecopower_tracker_process_import_export() {
 
 // Placeholder function for settings page
 function ecopower_tracker_settings_page() {
+    // Check if the user is allowed to update options
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( __( 'You do not have sufficient permissions to access this page.', 'ecopower-tracker' ) );
+    }
+
+    // Save settings if the form is submitted
+    if ( isset( $_POST['ecopower_tracker_settings'] ) && check_admin_referer( 'ecopower_tracker_settings', 'ecopower_tracker_nonce' ) ) {
+        update_option( 'ecopower_tracker_option1', sanitize_text_field( $_POST['ecopower_tracker_option1'] ) );
+        update_option( 'ecopower_tracker_option2', sanitize_text_field( $_POST['ecopower_tracker_option2'] ) );
+        echo '<div class="updated"><p>' . __( 'Settings saved.', 'ecopower-tracker' ) . '</p></div>';
+    }
+
+    // Get current settings
+    $option1 = get_option( 'ecopower_tracker_option1', '' );
+    $option2 = get_option( 'ecopower_tracker_option2', '' );
+
     ?>
     <div class="wrap">
-        <h1><?php _e( 'Settings', 'ecopower-tracker' ); ?></h1>
-        <p><?php _e( 'Settings page content goes here.', 'ecopower-tracker' ); ?></p>
+        <h1><?php _e( 'EcoPower Tracker Settings', 'ecopower-tracker' ); ?></h1>
+        <form method="post" action="">
+            <?php wp_nonce_field( 'ecopower_tracker_settings', 'ecopower_tracker_nonce' ); ?>
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row"><?php _e( 'Option 1', 'ecopower-tracker' ); ?></th>
+                    <td><input type="text" name="ecopower_tracker_option1" value="<?php echo esc_attr( $option1 ); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><?php _e( 'Option 2', 'ecopower-tracker' ); ?></th>
+                    <td><input type="text" name="ecopower_tracker_option2" value="<?php echo esc_attr( $option2 ); ?>" /></td>
+                </tr>
+            </table>
+            <?php submit_button(); ?>
+        </form>
     </div>
     <?php
 }

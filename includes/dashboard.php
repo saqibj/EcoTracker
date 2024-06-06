@@ -4,11 +4,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function ecopower_tracker_dashboard_content() {
-    $projects = ecopower_tracker_get_all_projects();
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+
+    // Calculate total power generated and CO2 offset
+    $projects = $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A );
+    $total_power = 0;
+    $total_co2_offset = 0;
+
+    foreach ( $projects as $project ) {
+        $activation_date = new DateTime( $project['date_of_activation'] );
+        $now = new DateTime();
+        $interval = $activation_date->diff( $now );
+        $total_hours = $interval->days * 24 + $interval->h;
+        $power_generated = $project['project_cuf'] * $project['generation_capacity'] * $total_hours / 1000; // in MWh
+        $co2_offset = $power_generated * 0.85; // 0.85 kg CO2 per kWh
+        $total_power += $power_generated;
+        $total_co2_offset += $co2_offset;
+    }
     ?>
     <div class="wrap">
         <h1><?php _e( 'EcoPower Tracker Dashboard', 'ecopower-tracker' ); ?></h1>
-        <table class="wp-list-table widefat fixed striped">
+        <p><strong><?php _e( 'Total Power Generated:', 'ecopower-tracker' ); ?></strong> <?php echo number_format( $total_power, 2 ) . ' MWh'; ?></p>
+        <p><strong><?php _e( 'Total CO2 Offset:', 'ecopower-tracker' ); ?></strong> <?php echo number_format( $total_co2_offset, 2 ) . ' kg'; ?></p>
+        
+        <h2><?php _e( 'All Projects', 'ecopower-tracker' ); ?></h2>
+        <table class="widefat">
             <thead>
                 <tr>
                     <th><?php _e( 'Project Company', 'ecopower-tracker' ); ?></th>
@@ -18,27 +39,28 @@ function ecopower_tracker_dashboard_content() {
                     <th><?php _e( 'Project CUF', 'ecopower-tracker' ); ?></th>
                     <th><?php _e( 'Generation Capacity (KW)', 'ecopower-tracker' ); ?></th>
                     <th><?php _e( 'Date of Activation', 'ecopower-tracker' ); ?></th>
-                    <th><?php _e( 'Power Generated (KWh)', 'ecopower-tracker' ); ?></th>
-                    <th><?php _e( 'CO2 Offset (kg)', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Actions', 'ecopower-tracker' ); ?></th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ( $projects as $project ) : 
-                    $power_generated = ecopower_tracker_calculate_power_generated( $project );
-                    $co2_offset = ecopower_tracker_calculate_co2_offset( $power_generated );
+                <?php
+                if ( ! empty( $projects ) ) {
+                    foreach ( $projects as $project ) {
+                        echo '<tr>';
+                        echo '<td>' . esc_html( $project['project_company'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['project_name'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['project_location'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['type_of_plant'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['project_cuf'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['generation_capacity'] ) . '</td>';
+                        echo '<td>' . esc_html( $project['date_of_activation'] ) . '</td>';
+                        echo '<td><a href="' . admin_url( 'admin.php?page=ecopower-tracker-add-new-project&id=' . $project['id'] ) . '">' . __( 'Edit', 'ecopower-tracker' ) . '</a> | <a href="' . wp_nonce_url( admin_url( 'admin-post.php?action=ecopower_tracker_delete_project&id=' . $project['id'] ), 'delete_project', 'ecopower_tracker_nonce' ) . '">' . __( 'Delete', 'ecopower-tracker' ) . '</a></td>';
+                        echo '</tr>';
+                    }
+                } else {
+                    echo '<tr><td colspan="8">' . __( 'No projects found.', 'ecopower-tracker' ) . '</td></tr>';
+                }
                 ?>
-                    <tr>
-                        <td><?php echo esc_html( $project['project_company'] ); ?></td>
-                        <td><?php echo esc_html( $project['project_name'] ); ?></td>
-                        <td><?php echo esc_html( $project['project_location'] ); ?></td>
-                        <td><?php echo esc_html( $project['type_of_plant'] ); ?></td>
-                        <td><?php echo esc_html( $project['project_cuf'] ); ?></td>
-                        <td><?php echo esc_html( $project['generation_capacity'] ); ?></td>
-                        <td><?php echo esc_html( $project['date_of_activation'] ); ?></td>
-                        <td><?php echo number_format( $power_generated, 2, '.', ',' ); ?></td>
-                        <td><?php echo number_format( $co2_offset, 2, '.', ',' ); ?></td>
-                    </tr>
-                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
