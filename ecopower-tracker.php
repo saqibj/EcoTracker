@@ -1,31 +1,51 @@
 <?php
 /*
 Plugin Name: EcoPower Tracker
-Description: A plugin to track power generation and carbon offset for wind and solar plants.
-Version: 1.0
+Description: A plugin to manage and display renewable energy project data.
+Version: 2.1d
 Author: Saqib Jawaid
-License: GPL 3
-Text Domain: ecopower-tracker
+License: GPL 3 or later
 */
 
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
 }
 
-// Define plugin paths
-define('ECOPOWER_TRACKER_PATH', plugin_dir_path(__FILE__));
-define('ECOPOWER_TRACKER_URL', plugin_dir_url(__FILE__));
-
 // Include necessary files
-include_once ECOPOWER_TRACKER_PATH . 'includes/admin-page.php';
-include_once ECOPOWER_TRACKER_PATH . 'includes/shortcodes.php';
-include_once ECOPOWER_TRACKER_PATH . 'includes/data-management.php';
-include_once ECOPOWER_TRACKER_PATH . 'includes/csv-handler.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/csv-export.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/csv-process.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/data-management.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/dashboard.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/localization.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/reporting-intervals.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/about.php';
 
-// Register activation hook
-register_activation_hook(__FILE__, 'ecopower_tracker_activate');
+// Activation and deactivation hooks
+register_activation_hook( __FILE__, 'ecopower_tracker_activate' );
+register_deactivation_hook( __FILE__, 'ecopower_tracker_deactivate' );
+
 function ecopower_tracker_activate() {
-    // Create custom database table
+    // Code to run on activation
+    ecopower_tracker_create_db();
+}
+
+function ecopower_tracker_deactivate() {
+    // Code to run on deactivation
+}
+
+// Initialize the plugin
+function ecopower_tracker_init() {
+    // Code to initialize the plugin
+}
+
+add_action( 'plugins_loaded', 'ecopower_tracker_init' );
+
+// Function to create the database
+function ecopower_tracker_create_db() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'ecopower_projects';
     $charset_collate = $wpdb->get_charset_collate();
@@ -35,39 +55,121 @@ function ecopower_tracker_activate() {
         project_company varchar(255) NOT NULL,
         project_name varchar(255) NOT NULL,
         project_location varchar(255) NOT NULL,
-        plant_type varchar(50) NOT NULL,
+        type_of_plant varchar(255) NOT NULL,
         project_cuf float NOT NULL,
         generation_capacity float NOT NULL,
-        activation_date date NOT NULL,
-        PRIMARY KEY  (id)
+        date_of_activation date NOT NULL,
+        PRIMARY KEY (id)
     ) $charset_collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
 }
 
-// Register deactivation hook
-register_deactivation_hook(__FILE__, 'ecopower_tracker_deactivate');
-function ecopower_tracker_deactivate() {
-    // Clean up tasks, if any
-}
-
-// Enqueue admin scripts and styles
-add_action('admin_enqueue_scripts', 'ecopower_tracker_admin_assets');
-function ecopower_tracker_admin_assets() {
-    wp_enqueue_style('ecopower-tracker-admin', ECOPOWER_TRACKER_URL . 'css/admin.css');
-    wp_enqueue_script('ecopower-tracker-admin', ECOPOWER_TRACKER_URL . 'js/admin.js', array('jquery'), null, true);
-}
-
-// Register admin menu
-add_action('admin_menu', 'ecopower_tracker_admin_menu');
+// Add admin menu
 function ecopower_tracker_admin_menu() {
     add_menu_page(
-        __('EcoPower Tracker', 'ecopower-tracker'),
-        __('EcoPower Tracker', 'ecopower-tracker'),
+        __( 'EcoPower Tracker', 'ecopower-tracker' ),
+        __( 'EcoPower Tracker', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker',
-        'ecopower_tracker_admin_page'
+        'ecopower_tracker_dashboard',
+        'dashicons-chart-line',  // Use a built-in dashicon
+        6
     );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'Dashboard', 'ecopower-tracker' ),
+        __( 'Dashboard', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-dashboard',
+        'ecopower_tracker_dashboard'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'All Projects', 'ecopower-tracker' ),
+        __( 'All Projects', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-all-projects',
+        'ecopower_tracker_all_projects_page'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'Add New Project', 'ecopower-tracker' ),
+        __( 'Add New Project', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-add-new-project',
+        'ecopower_tracker_add_new_project_page'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'Import/Export Projects', 'ecopower-tracker' ),
+        __( 'Import/Export', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-import-export',
+        'ecopower_tracker_display_import_export'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'Settings', 'ecopower-tracker' ),
+        __( 'Settings', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-settings',
+        'ecopower_tracker_settings_page'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'Reporting Intervals', 'ecopower-tracker' ),
+        __( 'Reporting Intervals', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-reporting-intervals',
+        'ecopower_tracker_reporting_intervals_page'
+    );
+
+    add_submenu_page(
+        'ecopower-tracker',
+        __( 'About', 'ecopower-tracker' ),
+        __( 'About', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker-about',
+        'ecopower_tracker_about_page'
+    );
+}
+
+add_action( 'admin_menu', 'ecopower_tracker_admin_menu' );
+
+// Functions for the submenu pages
+function ecopower_tracker_dashboard() {
+    include plugin_dir_path( __FILE__ ) . 'includes/dashboard.php';
+}
+
+function ecopower_tracker_all_projects_page() {
+    include plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
+}
+
+function ecopower_tracker_add_new_project_page() {
+    include plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
+}
+
+function ecopower_tracker_display_import_export() {
+    include plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
+}
+
+function ecopower_tracker_settings_page() {
+    echo '<h1>Settings</h1>';
+}
+
+function ecopower_tracker_reporting_intervals_page() {
+    include plugin_dir_path( __FILE__ ) . 'includes/reporting-intervals.php';
+}
+
+function ecopower_tracker_about_page() {
+    include plugin_dir_path( __FILE__ ) . 'includes/about.php';
 }
 ?>

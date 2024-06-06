@@ -1,68 +1,92 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
 }
 
-// Function to export project data as CSV
-function ecopower_tracker_export_csv() {
-    if (isset($_POST['ecopower_tracker_export_csv'])) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'ecopower_projects';
+// Function to handle data CRUD operations
+function ecopower_tracker_create_project( $data ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
 
-        $filename = 'ecopower_projects_' . date('Ymd') . '.csv';
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment;filename=' . $filename);
+    $result = $wpdb->insert(
+        $table_name,
+        [
+            'project_company' => sanitize_text_field( $data['project_company'] ),
+            'project_name' => sanitize_text_field( $data['project_name'] ),
+            'project_location' => sanitize_text_field( $data['project_location'] ),
+            'type_of_plant' => sanitize_text_field( $data['type_of_plant'] ),
+            'project_cuf' => floatval( $data['project_cuf'] ),
+            'generation_capacity' => floatval( $data['generation_capacity'] ),
+            'date_of_activation' => sanitize_text_field( $data['date_of_activation'] )
+        ]
+    );
 
-        $output = fopen('php://output', 'w');
-
-        fputcsv($output, array('Project Company', 'Project Name', 'Project Location', 'Type of Plant', 'Project CUF', 'Generation Capacity (in KWs)', 'Date of Activation'));
-
-        $projects = $wpdb->get_results("SELECT * FROM $table_name");
-
-        foreach ($projects as $project) {
-            fputcsv($output, array(
-                $project->project_company,
-                $project->project_name,
-                $project->project_location,
-                $project->plant_type,
-                $project->project_cuf,
-                $project->generation_capacity,
-                $project->activation_date
-            ));
-        }
-
-        fclose($output);
-        exit;
-    }
+    return $result !== false;
 }
-add_action('admin_post_ecopower_tracker_export_csv', 'ecopower_tracker_export_csv');
 
-// Function to import project data from CSV
-function ecopower_tracker_import_csv() {
-    if (isset($_POST['ecopower_tracker_import_csv']) && !empty($_FILES['ecopower_tracker_csv']['tmp_name'])) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'ecopower_projects';
+function ecopower_tracker_update_project( $id, $data ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
 
-        $csv_file = fopen($_FILES['ecopower_tracker_csv']['tmp_name'], 'r');
+    $result = $wpdb->update(
+        $table_name,
+        [
+            'project_company' => sanitize_text_field( $data['project_company'] ),
+            'project_name' => sanitize_text_field( $data['project_name'] ),
+            'project_location' => sanitize_text_field( $data['project_location'] ),
+            'type_of_plant' => sanitize_text_field( $data['type_of_plant'] ),
+            'project_cuf' => floatval( $data['project_cuf'] ),
+            'generation_capacity' => floatval( $data['generation_capacity'] ),
+            'date_of_activation' => sanitize_text_field( $data['date_of_activation'] )
+        ],
+        [ 'id' => intval( $id ) ]
+    );
 
-        fgetcsv($csv_file); // Skip the header row
-
-        while ($row = fgetcsv($csv_file)) {
-            $wpdb->insert($table_name, array(
-                'project_company' => sanitize_text_field($row[0]),
-                'project_name' => sanitize_text_field($row[1]),
-                'project_location' => sanitize_text_field($row[2]),
-                'plant_type' => sanitize_text_field($row[3]),
-                'project_cuf' => floatval($row[4]),
-                'generation_capacity' => floatval($row[5]),
-                'activation_date' => sanitize_text_field($row[6])
-            ));
-        }
-
-        fclose($csv_file);
-        wp_redirect(admin_url('admin.php?page=ecopower-tracker'));
-        exit;
-    }
+    return $result !== false;
 }
-add_action('admin_post_ecopower_tracker_import_csv', 'ecopower_tracker_import_csv');
+
+function ecopower_tracker_delete_project( $id ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+
+    $result = $wpdb->delete( $table_name, [ 'id' => intval( $id ) ] );
+
+    return $result !== false;
+}
+
+function ecopower_tracker_get_project( $id ) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+
+    $project = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $id ), ARRAY_A );
+
+    return $project;
+}
+
+function ecopower_tracker_get_all_projects() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+
+    $projects = $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A );
+
+    return $projects;
+}
+
+// Function to calculate total power generated
+function ecopower_tracker_calculate_power_generated( $project ) {
+    $current_date = new DateTime();
+    $activation_date = new DateTime( $project['date_of_activation'] );
+    $interval = $activation_date->diff( $current_date );
+    $total_hours = ( $interval->days * 24 ) + $interval->h;
+    $power_generated = $project['project_cuf'] * $project['generation_capacity'] * $total_hours;
+
+    return $power_generated;
+}
+
+// Function to calculate CO2 offset
+function ecopower_tracker_calculate_co2_offset( $power_generated ) {
+    $co2_offset = $power_generated * 0.85; // CO2 offset in kilograms
+
+    return $co2_offset;
+}
 ?>

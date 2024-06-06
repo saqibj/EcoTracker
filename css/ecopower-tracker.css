@@ -1,0 +1,28 @@
+/* Styles for the EcoPower Tracker admin page */
+.wrap h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+table.wp-list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.wp-list-table th, table.wp-list-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table.wp-list-table th {
+    background-color: #f1f1f1;
+    text-align: left;
+}
+
+table.wp-list-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table.wp-list-table tr:hover {
+    background-color: #f1f1f1;
+}
