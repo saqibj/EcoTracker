@@ -8,10 +8,95 @@ function ecopower_tracker_about_page() {
     <div class="wrap">
         <h1><?php _e( 'About EcoPower Tracker', 'ecopower-tracker' ); ?></h1>
         <div style="text-align: center;">
-            <img src="<?php echo plugin_dir_url( __FILE__ ) . '../img/EcoTracker-Logo.webp'; ?>" alt="EcoPower Tracker Logo" style="max-width: 20%;" />
+            <img src="<?php echo plugin_dir_url( __FILE__ ) . '../img/EcoTracker-Logo.webp'; ?>" alt="EcoPower Tracker Logo" style="max-width: 20%;">
         </div>
-        <p><?php _e( 'EcoPower Tracker is a WordPress plugin to manage and display renewable energy project data.', 'ecopower-tracker' ); ?></p>
-        <p><?php _e( 'For support, please visit the ', 'ecopower-tracker' ); ?><a href="https://github.com/saqibj/EcoTracker/" target="_blank"><?php _e( 'GitHub repository', 'ecopower-tracker' ); ?></a><?php _e( ' and open an issue on the ', 'ecopower-tracker' ); ?><a href="https://github.com/saqibj/EcoTracker/issues" target="_blank"><?php _e( 'GitHub issues page', 'ecopower-tracker' ); ?></a>.</p>
+        <h2><?php _e( 'Usage Manual', 'ecopower-tracker' ); ?></h2>
+        <p><?php _e( 'EcoPower Tracker is a WordPress plugin designed to help you manage and display renewable energy project data. Follow the instructions below to use the plugin effectively.', 'ecopower-tracker' ); ?></p>
+        
+        <h3><?php _e( 'Dashboard', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'The Dashboard provides an overview of your renewable energy projects, including total power generated and CO2 offset.', 'ecopower-tracker' ); ?></p>
+        
+        <h3><?php _e( 'All Projects', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'This page lists all the projects you have added to the EcoPower Tracker. You can view project details, edit existing projects, or delete projects.', 'ecopower-tracker' ); ?></p>
+        
+        <h3><?php _e( 'Add New Project', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'Use this page to add a new renewable energy project. You will need to provide the following information:', 'ecopower-tracker' ); ?></p>
+        <ul>
+            <li><?php _e( 'Project Company', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Project Name', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Project Location', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Type of Plant (Wind or Solar)', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Project CUF', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Generation Capacity (in KWs)', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( 'Date of Activation', 'ecopower-tracker' ); ?></li>
+        </ul>
+        
+        <h3><?php _e( 'Import/Export Projects', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'You can import or export project data using CSV files. The CSV file should be comma-separated and follow the format below:', 'ecopower-tracker' ); ?></p>
+        <p><strong><?php _e( 'CSV Format', 'ecopower-tracker' ); ?></strong></p>
+        <p><?php _e( 'Project Company, Project Name, Project Location, Type of Plant (Wind or Solar), Project CUF, Generation Capacity (in KWs), Date of Activation', 'ecopower-tracker' ); ?></p>
+        <table>
+            <thead>
+                <tr>
+                    <th><?php _e( 'Project Company', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Project Name', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Project Location', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Type of Plant', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Project CUF', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Generation Capacity', 'ecopower-tracker' ); ?></th>
+                    <th><?php _e( 'Date of Activation', 'ecopower-tracker' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ABC Energy</td>
+                    <td>Solar Plant 1</td>
+                    <td>California</td>
+                    <td>Solar</td>
+                    <td>0.18</td>
+                    <td>5000</td>
+                    <td>2022-01-01</td>
+                </tr>
+                <tr>
+                    <td>XYZ Wind</td>
+                    <td>Wind Farm A</td>
+                    <td>Texas</td>
+                    <td>Wind</td>
+                    <td>0.25</td>
+                    <td>10000</td>
+                    <td>2021-05-15</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3><?php _e( 'Settings', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'Adjust the plugin settings as needed to fit your requirements. Options include customizable reporting intervals and localization settings.', 'ecopower-tracker' ); ?></p>
+        
+        <h3><?php _e( 'Reporting Intervals', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'Set and manage reporting intervals for power generation and CO2 offset data. You can choose between daily, weekly, or monthly intervals.', 'ecopower-tracker' ); ?></p>
+
+        <h3><?php _e( 'Shortcode Generation', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'Use the following shortcodes to display various data views on your site:', 'ecopower-tracker' ); ?></p>
+        <ul>
+            <li><?php _e( '[ecopower_total_power] - Total power generated', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( '[ecopower_total_offset] - Total CO2 offset', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( '[ecopower_project_power id="PROJECT_ID"] - Power generated by a specific project', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( '[ecopower_project_offset id="PROJECT_ID"] - CO2 offset by a specific project', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( '[ecopower_subgroup_power ids="PROJECT_IDS"] - Power generated by a subgroup of projects', 'ecopower-tracker' ); ?></li>
+            <li><?php _e( '[ecopower_subgroup_offset ids="PROJECT_IDS"] - CO2 offset by a subgroup of projects', 'ecopower-tracker' ); ?></li>
+        </ul>
+
+        <h3><?php _e( 'Data Management', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'View, edit, and delete all projects in the admin panel. Export project data as a CSV file, or import data by uploading a CSV file.', 'ecopower-tracker' ); ?></p>
+
+        <h3><?php _e( 'Localization and Translation', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'EcoPower Tracker supports multiple languages. Use WordPress\'s localization functions to enable easy translation of the plugin\'s text.', 'ecopower-tracker' ); ?></p>
+
+        <h3><?php _e( 'About', 'ecopower-tracker' ); ?></h3>
+        <p><?php _e( 'EcoPower Tracker is developed by Saqib Jawaid. For more information, visit the GitHub repository:', 'ecopower-tracker' ); ?></p>
+        <p><a href="https://github.com/saqibj/EcoTracker/" target="_blank">https://github.com/saqibj/EcoTracker/</a></p>
+        <p><?php _e( 'For support, please open an issue on the GitHub issues page:', 'ecopower-tracker' ); ?></p>
+        <p><a href="https://github.com/saqibj/EcoTracker/issues" target="_blank">https://github.com/saqibj/EcoTracker/issues</a></p>
     </div>
     <?php
 }
