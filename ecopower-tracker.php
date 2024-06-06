@@ -7,6 +7,9 @@ Author: Saqib Jawaid
 License: GPL 3 or later
 */
 
+// Start output buffering
+ob_start();
+
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -73,7 +76,7 @@ function ecopower_tracker_admin_menu() {
         __( 'EcoPower Tracker', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker',
-        'ecopower_tracker_dashboard',
+        'ecopower_tracker_dashboard_content',
         'dashicons-chart-line',  // Use a built-in dashicon
         6
     );
@@ -84,7 +87,7 @@ function ecopower_tracker_admin_menu() {
         __( 'Dashboard', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-dashboard',
-        'ecopower_tracker_dashboard'
+        'ecopower_tracker_dashboard_content'
     );
 
     add_submenu_page(
@@ -93,7 +96,7 @@ function ecopower_tracker_admin_menu() {
         __( 'All Projects', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-all-projects',
-        'ecopower_tracker_all_projects_page'
+        'ecopower_tracker_all_projects'
     );
 
     add_submenu_page(
@@ -102,7 +105,7 @@ function ecopower_tracker_admin_menu() {
         __( 'Add New Project', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-add-new-project',
-        'ecopower_tracker_add_new_project_page'
+        'ecopower_tracker_add_new_project'
     );
 
     add_submenu_page(
@@ -111,7 +114,7 @@ function ecopower_tracker_admin_menu() {
         __( 'Import/Export', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-import-export',
-        'ecopower_tracker_display_import_export_page'
+        'ecopower_tracker_display_import_export'
     );
 
     add_submenu_page(
@@ -144,32 +147,16 @@ function ecopower_tracker_admin_menu() {
 
 add_action( 'admin_menu', 'ecopower_tracker_admin_menu' );
 
-// Functions for the submenu pages
-function ecopower_tracker_dashboard() {
-    include plugin_dir_path( __FILE__ ) . 'includes/dashboard.php';
-}
+// Ensure proper handling of import/export actions
+add_action( 'admin_init', 'ecopower_tracker_process_import_export' );
 
-function ecopower_tracker_all_projects_page() {
-    include plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
-}
+function ecopower_tracker_process_import_export() {
+    if ( isset( $_POST['ecopower_tracker_import'] ) && check_admin_referer( 'ecopower_tracker_import_export', 'ecopower_tracker_nonce' ) ) {
+        ecopower_tracker_handle_csv_import();
+    }
 
-function ecopower_tracker_add_new_project_page() {
-    include plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
-}
-
-function ecopower_tracker_display_import_export_page() {
-    include plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
-}
-
-function ecopower_tracker_settings_page() {
-    echo '<h1>Settings</h1>';
-}
-
-function ecopower_tracker_reporting_intervals_page() {
-    include plugin_dir_path( __FILE__ ) . 'includes/reporting-intervals.php';
-}
-
-function ecopower_tracker_about_page() {
-    include plugin_dir_path( __FILE__ ) . 'includes/about.php';
+    if ( isset( $_POST['ecopower_tracker_export'] ) && check_admin_referer( 'ecopower_tracker_import_export', 'ecopower_tracker_nonce' ) ) {
+        ecopower_tracker_handle_csv_export();
+    }
 }
 ?>

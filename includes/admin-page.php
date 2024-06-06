@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Function to display all projects
-function ecopower_tracker_all_projects_page() {
+function ecopower_tracker_all_projects() {
     $projects = ecopower_tracker_get_all_projects();
     ?>
     <div class="wrap">
@@ -33,9 +33,9 @@ function ecopower_tracker_all_projects_page() {
                         <td><?php echo esc_html( $project['generation_capacity'] ); ?></td>
                         <td><?php echo esc_html( $project['date_of_activation'] ); ?></td>
                         <td>
-                            <a href="<?php echo admin_url( 'admin.php?page=ecopower-tracker-edit-project&id=' . $project['id'] ); ?>"><?php _e( 'Edit', 'ecopower-tracker' ); ?></a>
+                            <a href="<?php echo admin_url( 'admin.php?page=ecopower-tracker-add-new-project&id=' . $project['id'] ); ?>"><?php _e( 'Edit', 'ecopower-tracker' ); ?></a>
                             |
-                            <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=ecopower-tracker-delete-project&id=' . $project['id'] ), 'delete_project', 'ecopower_tracker_nonce' ); ?>" onclick="return confirm('<?php _e( 'Are you sure you want to delete this project?', 'ecopower-tracker' ); ?>');"><?php _e( 'Delete', 'ecopower-tracker' ); ?></a>
+                            <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=ecopower_tracker_delete_project&id=' . $project['id'] ), 'delete_project', 'ecopower_tracker_nonce' ); ?>" onclick="return confirm('<?php _e( 'Are you sure you want to delete this project?', 'ecopower-tracker' ); ?>');"><?php _e( 'Delete', 'ecopower-tracker' ); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -46,30 +46,36 @@ function ecopower_tracker_all_projects_page() {
 }
 
 // Function to add or edit a project
-function ecopower_tracker_add_new_project_page() {
-    $action = isset( $_GET['id'] ) ? 'edit' : 'add';
-    $project = $action === 'edit' ? ecopower_tracker_get_project( $_GET['id'] ) : [];
-
+function ecopower_tracker_add_new_project() {
     if ( $_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer( 'save_project', 'ecopower_tracker_nonce' ) ) {
+        $action = isset( $_GET['id'] ) ? 'edit' : 'add';
         $data = [
-            'project_company' => $_POST['project_company'],
-            'project_name' => $_POST['project_name'],
-            'project_location' => $_POST['project_location'],
-            'type_of_plant' => $_POST['type_of_plant'],
-            'project_cuf' => $_POST['project_cuf'],
-            'generation_capacity' => $_POST['generation_capacity'],
-            'date_of_activation' => $_POST['date_of_activation']
+            'project_company' => sanitize_text_field( $_POST['project_company'] ),
+            'project_name' => sanitize_text_field( $_POST['project_name'] ),
+            'project_location' => sanitize_text_field( $_POST['project_location'] ),
+            'type_of_plant' => sanitize_text_field( $_POST['type_of_plant'] ),
+            'project_cuf' => floatval( $_POST['project_cuf'] ),
+            'generation_capacity' => floatval( $_POST['generation_capacity'] ),
+            'date_of_activation' => sanitize_text_field( $_POST['date_of_activation'] )
         ];
 
         if ( $action === 'edit' ) {
-            ecopower_tracker_update_project( $_GET['id'], $data );
+            ecopower_tracker_update_project( intval( $_GET['id'] ), $data );
+            error_log('Project updated: ' . print_r($data, true));
         } else {
             ecopower_tracker_create_project( $data );
+            error_log('Project created: ' . print_r($data, true));
         }
 
-        wp_redirect( admin_url( 'admin.php?page=ecopower-tracker-all-projects' ) );
+        // Clear the output buffer and redirect
+        ob_start();
+        error_log('Redirecting to all projects page');
+        wp_safe_redirect( admin_url( 'admin.php?page=ecopower-tracker-all-projects' ) );
         exit;
     }
+
+    $action = isset( $_GET['id'] ) ? 'edit' : 'add';
+    $project = $action === 'edit' ? ecopower_tracker_get_project( intval( $_GET['id'] ) ) : [];
 
     ?>
     <div class="wrap">
@@ -112,19 +118,27 @@ function ecopower_tracker_add_new_project_page() {
                 </tr>
             </table>
             <?php submit_button( $action === 'edit' ? __( 'Save Changes', 'ecopower-tracker' ) : __( 'Add Project', 'ecopower-tracker' ) ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=ecopower-tracker-all-projects' ); ?>" class="button-secondary"><?php _e( 'Cancel', 'ecopower-tracker' ); ?></a>
         </form>
     </div>
     <?php
 }
 
 // Function to delete a project
-function ecopower_tracker_delete_project() {
+function ecopower_tracker_delete_project_action() {
     if ( isset( $_GET['id'] ) && check_admin_referer( 'delete_project', 'ecopower_tracker_nonce' ) ) {
-        ecopower_tracker_delete_project( $_GET['id'] );
-        wp_redirect( admin_url( 'admin.php?page=ecopower-tracker-all-projects' ) );
-        exit;
+        if ( current_user_can( 'manage_options' ) ) {
+            ecopower_tracker_delete_project( intval( $_GET['id'] ) );
+            error_log('Project deleted: ' . intval( $_GET['id'] ));
+            // Clear the output buffer and redirect
+            ob_start();
+            wp_safe_redirect( admin_url( 'admin.php?page=ecopower-tracker-all-projects' ) );
+            exit;
+        } else {
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'ecopower-tracker' ) );
+        }
     }
 }
 
-add_action( 'admin_post_ecopower_tracker_delete_project', 'ecopower_tracker_delete_project' );
+add_action( 'admin_post_ecopower_tracker_delete_project', 'ecopower_tracker_delete_project_action' );
 ?>

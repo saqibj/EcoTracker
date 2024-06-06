@@ -3,27 +3,91 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-function ecopower_tracker_import_csv() {
-    if ( isset( $_POST['import_csv'] ) && ! empty( $_FILES['csv_file']['tmp_name'] ) ) {
-        $uploads_dir = plugin_dir_path( __FILE__ ) . '../uploads/';
-        if ( ! file_exists( $uploads_dir ) ) {
-            mkdir( $uploads_dir, 0755, true );
-            error_log( 'Created uploads directory: ' . $uploads_dir );
-        }
+// Function to display the import/export page
+function ecopower_tracker_display_import_export() {
+    ?>
+    <div class="wrap">
+        <h1><?php _e( 'Import/Export Projects', 'ecopower-tracker' ); ?></h1>
+        <form method="post" enctype="multipart/form-data">
+            <?php wp_nonce_field( 'ecopower_tracker_import_export', 'ecopower_tracker_nonce' ); ?>
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row"><?php _e( 'Import Projects', 'ecopower-tracker' ); ?></th>
+                    <td>
+                        <input type="file" name="ecopower_tracker_import_file" accept=".csv" />
+                        <?php submit_button( __( 'Import', 'ecopower-tracker' ), 'primary', 'ecopower_tracker_import' ); ?>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><?php _e( 'Export Projects', 'ecopower-tracker' ); ?></th>
+                    <td>
+                        <?php submit_button( __( 'Export', 'ecopower-tracker' ), 'secondary', 'ecopower_tracker_export' ); ?>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <?php
+}
 
-        $uploaded_file = $uploads_dir . basename( $_FILES['csv_file']['name'] );
+// Function to handle the CSV import
+function ecopower_tracker_handle_csv_import() {
+    if ( ! empty( $_FILES['ecopower_tracker_import_file']['tmp_name'] ) ) {
+        $file = $_FILES['ecopower_tracker_import_file']['tmp_name'];
+        $handle = fopen( $file, 'r' );
+        if ( $handle ) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_projects';
 
-        if ( move_uploaded_file( $_FILES['csv_file']['tmp_name'], $uploaded_file ) ) {
-            error_log( 'File uploaded successfully to: ' . $uploaded_file );
-            ecopower_tracker_process_csv( $uploaded_file );
+            // Skip the header row
+            fgetcsv( $handle, 1000, ',' );
+
+            while ( ( $row = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+                $wpdb->insert(
+                    $table_name,
+                    [
+                        'project_company' => sanitize_text_field( $row[0] ),
+                        'project_name' => sanitize_text_field( $row[1] ),
+                        'project_location' => sanitize_text_field( $row[2] ),
+                        'type_of_plant' => sanitize_text_field( $row[3] ),
+                        'project_cuf' => floatval( $row[4] ),
+                        'generation_capacity' => floatval( $row[5] ),
+                        'date_of_activation' => sanitize_text_field( $row[6] )
+                    ]
+                );
+            }
+
+            fclose( $handle );
+            echo '<div class="updated"><p>' . __( 'Projects imported successfully.', 'ecopower-tracker' ) . '</p></div>';
         } else {
-            add_action( 'admin_notices', function() {
-                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'CSV import failed. Could not move file to uploads directory.', 'ecopower-tracker' ) . '</p></div>';
-            } );
-            error_log( 'CSV import failed. Could not move file to uploads directory.' );
+            echo '<div class="error"><p>' . __( 'Unable to open the file.', 'ecopower-tracker' ) . '</p></div>';
         }
+    } else {
+        echo '<div class="error"><p>' . __( 'No file uploaded.', 'ecopower-tracker' ) . '</p></div>';
     }
 }
 
-add_action( 'admin_init', 'ecopower_tracker_import_csv' );
+// Function to handle the CSV export
+function ecopower_tracker_handle_csv_export() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'ecopower_projects';
+    $projects = $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A );
+
+    header( 'Content-Type: text/csv' );
+    header( 'Content-Disposition: attachment;filename=projects.csv' );
+
+    $output = fopen( 'php://output', 'w' );
+    fputcsv( $output, array( 'Project Company', 'Project Name', 'Project Location', 'Type of Plant', 'Project CUF', 'Generation Capacity', 'Date of Activation' ) );
+
+    foreach ( $projects as $project ) {
+        fputcsv( $output, $project );
+    }
+
+    fclose( $output );
+    exit;
+}
 ?>

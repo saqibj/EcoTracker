@@ -3,8 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-// Function to display the dashboard
-function ecopower_tracker_dashboard() {
+function ecopower_tracker_dashboard_content() {
     $projects = ecopower_tracker_get_all_projects();
     ?>
     <div class="wrap">
