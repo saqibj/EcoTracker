@@ -158,7 +158,17 @@ function ecopower_tracker_add_new_project_page() {
 }
 
 function ecopower_tracker_display_import_export() {
-    include plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
+    ?>
+    <h2><?php _e( 'Import/Export Projects', 'ecopower-tracker' ); ?></h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="csv_file" />
+        <input type="submit" name="import_csv" class="button-primary" value="<?php _e( 'Import CSV', 'ecopower-tracker' ); ?>" />
+    </form>
+    <form method="get">
+        <input type="hidden" name="page" value="ecopower-tracker" />
+        <input type="submit" name="export_csv" class="button-primary" value="<?php _e( 'Export CSV', 'ecopower-tracker' ); ?>" />
+    </form>
+    <?php
 }
 
 function ecopower_tracker_settings_page() {
