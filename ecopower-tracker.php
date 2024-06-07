@@ -26,6 +26,19 @@ include_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/localization.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/reporting-intervals.php';
 
+// Add custom CSS to enforce the icon size
+function ecopower_tracker_admin_css() {
+    echo '
+    <style>
+        #toplevel_page_ecopower-tracker-dashboard .wp-menu-image img {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+    ';
+}
+add_action('admin_head', 'ecopower_tracker_admin_css');
+
 // Activation and deactivation hooks
 register_activation_hook( __FILE__, 'ecopower_tracker_activate' );
 register_deactivation_hook( __FILE__, 'ecopower_tracker_deactivate' );
@@ -63,7 +76,6 @@ function ecopower_tracker_create_db() {
 // Add admin menus
 function ecopower_tracker_admin_menu() {
     $icon_url = plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Wht.svg';
-    $icon_style = 'style="width:20px; height:20px;"';
 
     add_menu_page( 
         __( 'EcoPower Tracker', 'ecopower-tracker' ), 
@@ -72,7 +84,7 @@ function ecopower_tracker_admin_menu() {
         'ecopower-tracker-dashboard', 
         'ecopower_tracker_dashboard_content', 
         $icon_url, 
-        20
+        20 
     );
 
     add_submenu_page(
