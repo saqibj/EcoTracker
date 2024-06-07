@@ -62,14 +62,17 @@ function ecopower_tracker_create_db() {
 
 // Add admin menus
 function ecopower_tracker_admin_menu() {
+    $icon_url = plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Wht.svg';
+    $icon_style = 'style="width:20px; height:20px;"';
+
     add_menu_page( 
         __( 'EcoPower Tracker', 'ecopower-tracker' ), 
         __( 'EcoPower Tracker', 'ecopower-tracker' ), 
         'manage_options', 
         'ecopower-tracker-dashboard', 
         'ecopower_tracker_dashboard_content', 
-        plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Wht.svg', 
-        20 
+        $icon_url, 
+        20
     );
 
     add_submenu_page(
