@@ -12,6 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Start output buffering
+ob_start();
+
 // Include necessary files
 include_once plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
@@ -30,12 +33,9 @@ register_deactivation_hook( __FILE__, 'ecopower_tracker_deactivate' );
 
 function ecopower_tracker_activate() {
     // Code to run on activation
-    // Example: create necessary database tables
     global $wpdb;
     $table_name = $wpdb->prefix . 'ecopower_projects';
-
     $charset_collate = $wpdb->get_charset_collate();
-
     $sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         project_company varchar(255) NOT NULL,
@@ -47,7 +47,6 @@ function ecopower_tracker_activate() {
         date_of_activation date NOT NULL,
         PRIMARY KEY  (id)
     ) $charset_collate;";
-
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 }
@@ -134,20 +133,8 @@ function ecopower_tracker_add_admin_menu() {
 }
 add_action( 'admin_menu', 'ecopower_tracker_add_admin_menu' );
 
-// Add localization support
-function ecopower_tracker_load_textdomain() {
-    load_plugin_textdomain( 'ecopower-tracker', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-add_action( 'plugins_loaded', 'ecopower_tracker_load_textdomain' );
-
-// Start output buffering
-ob_start();
-
 // Register shortcodes
-// Make sure shortcodes are only loaded in the context where they should be used
-if ( ! is_admin() ) {
-    add_action( 'init', 'ecopower_tracker_register_shortcodes' );
-}
+add_action( 'init', 'ecopower_tracker_register_shortcodes' );
 
 function ecopower_tracker_register_shortcodes() {
     add_shortcode( 'ecopower_tracker_total_power', 'ecopower_tracker_total_power_shortcode' );
@@ -165,7 +152,5 @@ function ecopower_tracker_register_shortcodes() {
     add_shortcode( 'ecopower_tracker_location_capacity', 'ecopower_tracker_location_capacity_shortcode' );
     add_shortcode( 'ecopower_tracker_type_capacity', 'ecopower_tracker_type_capacity_shortcode' );
 }
-
-// Add your shortcode functions here or include them from the shortcodes.php file
 
 ?>
