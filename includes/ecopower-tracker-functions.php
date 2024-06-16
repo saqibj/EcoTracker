@@ -37,39 +37,6 @@ function ecopower_tracker_create_tables() {
 }
 
 /**
- * Function to handle the plugin's activation tasks.
- */
-function ecopower_tracker_activate() {
-    // Create or update the database table structure
-    ecopower_tracker_create_tables();
-
-    // Set default options if needed
-    update_option('ecopower_tracker_version', '2.0.1');
-}
-
-/**
- * Function to handle the plugin's deactivation tasks.
- */
-function ecopower_tracker_deactivate() {
-    // Optional: Clean up options or temporary data
-    delete_option('ecopower_tracker_version');
-}
-
-/**
- * Function to handle the plugin's uninstallation tasks.
- */
-function ecopower_tracker_uninstall() {
-    global $wpdb;
-
-    // Delete the database table
-    $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
-
-    // Clean up options or settings
-    delete_option('ecopower_tracker_version');
-}
-
-/**
  * Function to add custom admin notices.
  */
 function ecopower_tracker_admin_notices() {
@@ -112,14 +79,5 @@ add_action('admin_notices', 'ecopower_tracker_admin_notices');
 
 // Hook to enqueue frontend assets
 add_action('wp_enqueue_scripts', 'ecopower_tracker_enqueue_frontend_assets');
-
-// Register activation and deactivation hooks
-register_activation_hook(__FILE__, 'ecopower_tracker_activate');
-register_deactivation_hook(__FILE__, 'ecopower_tracker_deactivate');
-
-// Hook for uninstall actions
-if (defined('WP_UNINSTALL_PLUGIN')) {
-    ecopower_tracker_uninstall();
-}
 
 ?>

@@ -10,9 +10,8 @@
  * License: GPL v3
  */
 
-// Ensure no direct access
 if (!defined('ABSPATH')) {
-    exit;
+    exit; // Exit if accessed directly
 }
 
 // Start output buffering to handle any potential issues with output.
@@ -84,24 +83,32 @@ class EcoPowerTracker {
 // Initialize the plugin
 new EcoPowerTracker();
 
+/**
+ * Function to handle the plugin's activation tasks.
+ */
+function ecopower_tracker_activate() {
+    // Create or update the database table structure
+    ecopower_tracker_create_tables();
+
+    // Set default options if needed
+    update_option('ecopower_tracker_version', '2.0.1');
+}
+
+/**
+ * Function to handle the plugin's deactivation tasks.
+ */
+function ecopower_tracker_deactivate() {
+    // Optional: Clean up options or temporary data
+    delete_option('ecopower_tracker_version');
+}
+
 // Register activation and deactivation hooks
 register_activation_hook(__FILE__, 'ecopower_tracker_activate');
 register_deactivation_hook(__FILE__, 'ecopower_tracker_deactivate');
 
-// Activation callback
-function ecopower_tracker_activate() {
-    // Code to execute upon activation
-}
-
-// Deactivation callback
-function ecopower_tracker_deactivate() {
-    // Code to execute upon deactivation
-}
-
 // Cleanup on uninstall
 if (defined('WP_UNINSTALL_PLUGIN')) {
-    // Code to execute upon uninstall
-    // For instance, deleting options or custom tables
+    require_once plugin_dir_path(__FILE__) . 'uninstall.php';
 }
 
 ?>
