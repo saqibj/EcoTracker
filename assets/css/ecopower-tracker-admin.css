@@ -1,0 +1,59 @@
+/* Path: EcoPower-Tracker/assets/css/ecopower-tracker-admin.css */
+/* File: ecopower-tracker-admin.css */
+
+/* Style for the admin dashboard totals */
+.ecopower-tracker-totals {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.ecopower-tracker-totals h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em;
+    color: #0073aa;
+}
+
+/* Style for the project list table */
+.widefat.fixed th, .widefat.fixed td {
+    padding: 10px;
+}
+
+.widefat.fixed th {
+    background-color: #f1f1f1;
+}
+
+/* Style for CSV upload and export forms */
+.wrap h2 + form {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* Style for admin notices */
+.notice-success {
+    border-left-color: #46b450;
+}
+
+.notice-error {
+    border-left-color: #dc3232;
+}
+
+/* Custom button styles */
+.button-primary {
+    background: #0073aa;
+    border-color: #0073aa;
+    box-shadow: none;
+    text-decoration: none;
+    text-shadow: none;
+}
+
+.button-primary:hover {
+    background: #005177;
+    border-color: #005177;
+}
