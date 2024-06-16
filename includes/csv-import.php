@@ -3,101 +3,95 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-function ecopower_tracker_handle_csv_import() {
-    if ( ! empty( $_FILES['ecopower_tracker_import_file']['tmp_name'] ) ) {
-        $file = $_FILES['ecopower_tracker_import_file']['tmp_name'];
-        $handle = fopen( $file, 'r' );
-        $not_imported_projects = []; // Initialize an array to track not imported projects
+function ecopower_tracker_import_page() {
+    if ( isset( $_POST['ecopower_tracker_import_submit'] ) && check_admin_referer( 'ecopower_tracker_import_action', 'ecopower_tracker_import_nonce' ) ) {
+        // Handle the file upload
+        if ( ! empty( $_FILES['ecopower_tracker_import_file']['tmp_name'] ) ) {
+            $file = $_FILES['ecopower_tracker_import_file']['tmp_name'];
 
-        if ( $handle !== false ) {
-            $header = fgetcsv( $handle, 1000, ',' ); // Read and ignore the header row
+            // Move the uploaded file to the uploads directory
+            $uploads_dir = plugin_dir_path( __FILE__ ) . '../uploads/';
+            if ( ! is_dir( $uploads_dir ) ) {
+                mkdir( $uploads_dir, 0755, true );
+            }
+            $uploaded_file_path = $uploads_dir . basename( $_FILES['ecopower_tracker_import_file']['name'] );
 
-            while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-                $project_company = sanitize_text_field( $data[0] );
-                $project_name = sanitize_text_field( $data[1] );
-                $project_location = sanitize_text_field( $data[2] );
-                $type_of_plant = sanitize_text_field( $data[3] );
-                $project_cuf = floatval( $data[4] );
-                $generation_capacity = floatval( $data[5] );
-                $date_of_activation = ecopower_tracker_convert_date( $data[6] );
+            if ( move_uploaded_file( $file, $uploaded_file_path ) ) {
+                // Process the CSV file
+                if ( $csv_data = fopen( $uploaded_file_path, 'r' ) ) {
+                    global $wpdb;
+                    $table_name = $wpdb->prefix . 'ecopower_projects';
 
-                if ( $date_of_activation ) {
-                    if ( ! ecopower_tracker_project_exists( $project_name, $project_location ) ) {
-                        ecopower_tracker_add_project_to_db( $project_company, $project_name, $project_location, $type_of_plant, $project_cuf, $generation_capacity, $date_of_activation );
-                    } else {
-                        $not_imported_projects[] = $project_name; // Add to not imported list if it exists
+                    $imported_projects = [];
+                    $skipped_projects = [];
+
+                    $header = fgetcsv( $csv_data );
+                    while ( $row = fgetcsv( $csv_data ) ) {
+                        $data = array_combine( $header, $row );
+
+                        // Validate and format the date
+                        $activation_date = DateTime::createFromFormat( 'Y-m-d', $data['Date of Activation'] );
+                        if ( !$activation_date ) {
+                            $activation_date = DateTime::createFromFormat( 'd/m/Y', $data['Date of Activation'] );
+                        }
+                        if ( !$activation_date ) {
+                            $skipped_projects[] = $data['Project Name'] . ' (Invalid Date)';
+                            continue;
+                        }
+
+                        // Check for existing project by name and date
+                        $existing_project = $wpdb->get_row( $wpdb->prepare( "SELECT id FROM $table_name WHERE project_name = %s AND date_of_activation = %s", $data['Project Name'], $activation_date->format('Y-m-d') ) );
+
+                        if ( $existing_project ) {
+                            $skipped_projects[] = $data['Project Name'] . ' (Duplicate)';
+                            continue;
+                        }
+
+                        $wpdb->insert(
+                            $table_name,
+                            array(
+                                'project_company' => sanitize_text_field( $data['Project Company'] ),
+                                'project_name' => sanitize_text_field( $data['Project Name'] ),
+                                'project_location' => sanitize_text_field( $data['Project Location'] ),
+                                'type_of_plant' => sanitize_text_field( $data['Type of Plant'] ),
+                                'project_cuf' => floatval( $data['Project CUF'] ),
+                                'generation_capacity' => floatval( $data['Generation Capacity (KW)'] ),
+                                'date_of_activation' => $activation_date->format('Y-m-d')
+                            )
+                        );
+
+                        $imported_projects[] = $data['Project Name'];
+                    }
+                    fclose( $csv_data );
+
+                    // Feedback messages
+                    if ( ! empty( $imported_projects ) ) {
+                        echo '<div class="notice notice-success is-dismissible"><p>' . __( 'Successfully imported projects:', 'ecopower-tracker' ) . ' ' . implode( ', ', $imported_projects ) . '</p></div>';
+                    }
+                    if ( ! empty( $skipped_projects ) ) {
+                        echo '<div class="notice notice-warning is-dismissible"><p>' . __( 'Skipped projects:', 'ecopower-tracker' ) . ' ' . implode( ', ', $skipped_projects ) . '</p></div>';
                     }
                 } else {
-                    // Handle invalid date format
-                    error_log( "Invalid date format in CSV for project: $project_name" );
+                    echo '<div class="notice notice-error is-dismissible"><p>' . __( 'Failed to open the CSV file.', 'ecopower-tracker' ) . '</p></div>';
                 }
-            }
-
-            fclose( $handle );
-
-            // Add a message for successful import
-            echo '<div class="updated"><p>' . __( 'CSV imported successfully. Check your projects list to verify.', 'ecopower-tracker' ) . '</p></div>';
-
-            // Display the list of not imported projects
-            if ( ! empty( $not_imported_projects ) ) {
-                echo '<div class="error"><p>' . __( 'The following projects were not imported because they already exist:', 'ecopower-tracker' ) . '</p><ul>';
-                foreach ( $not_imported_projects as $project_name ) {
-                    echo '<li>' . esc_html( $project_name ) . '</li>';
-                }
-                echo '</ul></div>';
+            } else {
+                echo '<div class="notice notice-error is-dismissible"><p>' . __( 'Failed to upload the file.', 'ecopower-tracker' ) . '</p></div>';
             }
         } else {
-            // Add a message for failed file handling
-            echo '<div class="error"><p>' . __( 'Failed to open the uploaded CSV file.', 'ecopower-tracker' ) . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . __( 'Please upload a CSV file.', 'ecopower-tracker' ) . '</p></div>';
         }
     }
+
+    ?>
+    <div class="wrap">
+        <h1><?php _e( 'Import/Export', 'ecopower-tracker' ); ?></h1>
+        <h2><?php _e( 'Import Project Data', 'ecopower-tracker' ); ?></h2>
+        <form method="post" enctype="multipart/form-data">
+            <?php wp_nonce_field( 'ecopower_tracker_import_action', 'ecopower_tracker_import_nonce' ); ?>
+            <input type="file" name="ecopower_tracker_import_file" accept=".csv" required />
+            <input type="submit" name="ecopower_tracker_import_submit" class="button button-primary" value="<?php _e( 'Import CSV', 'ecopower-tracker' ); ?>" />
+        </form>
+    </div>
+    <?php
 }
-
-function ecopower_tracker_convert_date( $date_string ) {
-    // Check if the date is in a valid format
-    $date = date_create_from_format( 'Y-m-d', $date_string );
-    if ( $date ) {
-        return $date->format( 'Y-m-d' );
-    } else {
-        // Try to detect and convert common date formats
-        $date_formats = ['d/m/Y', 'm/d/Y', 'd-m-Y', 'm-d-Y'];
-        foreach ( $date_formats as $format ) {
-            $date = date_create_from_format( $format, $date_string );
-            if ( $date ) {
-                return $date->format( 'Y-m-d' );
-            }
-        }
-    }
-    return false; // Invalid date format
-}
-
-function ecopower_tracker_project_exists( $project_name, $project_location ) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'ecopower_projects';
-
-    // Check if a project with the same name and location already exists
-    $query = $wpdb->prepare( "SELECT COUNT(*) FROM $table_name WHERE project_name = %s AND project_location = %s", $project_name, $project_location );
-    $count = $wpdb->get_var( $query );
-
-    return $count > 0; // Return true if a project already exists, false otherwise
-}
-
-function ecopower_tracker_add_project_to_db( $project_company, $project_name, $project_location, $type_of_plant, $project_cuf, $generation_capacity, $date_of_activation ) {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'ecopower_projects';
-
-    $wpdb->insert(
-        $table_name,
-        [
-            'project_company' => $project_company,
-            'project_name' => $project_name,
-            'project_location' => $project_location,
-            'type_of_plant' => $type_of_plant,
-            'project_cuf' => $project_cuf,
-            'generation_capacity' => $generation_capacity,
-            'date_of_activation' => $date_of_activation
-        ]
-    );
-}
-
 ?>

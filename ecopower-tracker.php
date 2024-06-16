@@ -2,7 +2,7 @@
 /*
 Plugin Name: EcoPower Tracker
 Description: A plugin to manage and display renewable energy project data.
-Version: 2.1e
+Version: 2.1f
 Author: Saqib Jawaid
 License: GPL 3 or later
 */
@@ -12,32 +12,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Start output buffering
-ob_start();
-
 // Include necessary files
 include_once plugin_dir_path( __FILE__ ) . 'includes/admin-page.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/csv-import.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/csv-export.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/data-management.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/dashboard.php';
-include_once plugin_dir_path( __FILE__ ) . 'includes/shortcodes.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/localization.php';
 include_once plugin_dir_path( __FILE__ ) . 'includes/reporting-intervals.php';
-
-// Add custom CSS to enforce the icon size
-function ecopower_tracker_admin_css() {
-    echo '
-    <style>
-        #toplevel_page_ecopower-tracker-dashboard .wp-menu-image img {
-            width: 20px;
-            height: 20px;
-        }
-    </style>
-    ';
-}
-add_action('admin_head', 'ecopower_tracker_admin_css');
+include_once plugin_dir_path( __FILE__ ) . 'includes/about.php';
+include_once plugin_dir_path( __FILE__ ) . 'includes/shortcodes.php';
 
 // Activation and deactivation hooks
 register_activation_hook( __FILE__, 'ecopower_tracker_activate' );
@@ -45,26 +30,20 @@ register_deactivation_hook( __FILE__, 'ecopower_tracker_deactivate' );
 
 function ecopower_tracker_activate() {
     // Code to run on activation
-    ecopower_tracker_create_db();
-}
-
-function ecopower_tracker_deactivate() {
-    // Code to run on deactivation
-}
-
-function ecopower_tracker_create_db() {
+    // Example: create necessary database tables
     global $wpdb;
     $table_name = $wpdb->prefix . 'ecopower_projects';
+
     $charset_collate = $wpdb->get_charset_collate();
 
-    $sql = "CREATE TABLE $table_name (
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         project_company varchar(255) NOT NULL,
         project_name varchar(255) NOT NULL,
         project_location varchar(255) NOT NULL,
         type_of_plant varchar(255) NOT NULL,
         project_cuf float NOT NULL,
-        generation_capacity float NOT NULL,
+        generation_capacity int NOT NULL,
         date_of_activation date NOT NULL,
         PRIMARY KEY  (id)
     ) $charset_collate;";
@@ -73,49 +52,52 @@ function ecopower_tracker_create_db() {
     dbDelta( $sql );
 }
 
-// Add admin menus
-function ecopower_tracker_admin_menu() {
-    $icon_url = plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Wht.svg';
+function ecopower_tracker_deactivate() {
+    // Code to run on deactivation
+}
 
-    add_menu_page( 
-        __( 'EcoPower Tracker', 'ecopower-tracker' ), 
-        __( 'EcoPower Tracker', 'ecopower-tracker' ), 
-        'manage_options', 
-        'ecopower-tracker-dashboard', 
-        'ecopower_tracker_dashboard_content', 
-        $icon_url, 
-        20 
+// Add admin menu
+function ecopower_tracker_add_admin_menu() {
+    add_menu_page(
+        __( 'EcoPower Tracker', 'ecopower-tracker' ),
+        __( 'EcoPower Tracker', 'ecopower-tracker' ),
+        'manage_options',
+        'ecopower-tracker',
+        'ecopower_tracker_dashboard_content',
+        plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Wht.svg', // Menu icon
+        6
     );
 
+    // Submenu pages
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'Dashboard', 'ecopower-tracker' ),
         __( 'Dashboard', 'ecopower-tracker' ),
         'manage_options',
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         'ecopower_tracker_dashboard_content'
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'All Projects', 'ecopower-tracker' ),
         __( 'All Projects', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-all-projects',
-        'ecopower_tracker_all_projects'
+        'ecopower_tracker_all_projects_page'
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'Add New Project', 'ecopower-tracker' ),
         __( 'Add New Project', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-add-new-project',
-        'ecopower_tracker_add_new_project'
+        'ecopower_tracker_add_new_project_page'
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'Import/Export', 'ecopower-tracker' ),
         __( 'Import/Export', 'ecopower-tracker' ),
         'manage_options',
@@ -124,7 +106,7 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'Settings', 'ecopower-tracker' ),
         __( 'Settings', 'ecopower-tracker' ),
         'manage_options',
@@ -133,16 +115,16 @@ function ecopower_tracker_admin_menu() {
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'Reporting Intervals', 'ecopower-tracker' ),
         __( 'Reporting Intervals', 'ecopower-tracker' ),
         'manage_options',
         'ecopower-tracker-reporting-intervals',
-        'ecopower_tracker_reporting_intervals'
+        'ecopower_tracker_reporting_intervals_page'
     );
 
     add_submenu_page(
-        'ecopower-tracker-dashboard',
+        'ecopower-tracker',
         __( 'About', 'ecopower-tracker' ),
         __( 'About', 'ecopower-tracker' ),
         'manage_options',
@@ -150,47 +132,40 @@ function ecopower_tracker_admin_menu() {
         'ecopower_tracker_about_page'
     );
 }
-add_action( 'admin_menu', 'ecopower_tracker_admin_menu' );
+add_action( 'admin_menu', 'ecopower_tracker_add_admin_menu' );
 
-// Initialize the plugin
-function ecopower_tracker_init() {
-    // Code to initialize the plugin
+// Add localization support
+function ecopower_tracker_load_textdomain() {
+    load_plugin_textdomain( 'ecopower-tracker', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }
-add_action( 'plugins_loaded', 'ecopower_tracker_init' );
+add_action( 'plugins_loaded', 'ecopower_tracker_load_textdomain' );
 
-// Placeholder for displaying the Import/Export page
-function ecopower_tracker_display_import_export() {
-    // Import/Export content goes here
-    echo '<div class="wrap"><h1>' . __( 'Import/Export', 'ecopower-tracker' ) . '</h1>';
-    echo '<p>' . __( 'Import and export project data using CSV files.', 'ecopower-tracker' ) . '</p></div>';
-}
+// Start output buffering
+ob_start();
 
-// Placeholder for displaying the Settings page
-function ecopower_tracker_settings_page() {
-    // Settings content goes here
-    echo '<div class="wrap"><h1>' . __( 'Settings', 'ecopower-tracker' ) . '</h1>';
-    echo '<p>' . __( 'Settings page content goes here.', 'ecopower-tracker' ) . '</p></div>';
+// Register shortcodes
+// Make sure shortcodes are only loaded in the context where they should be used
+if ( ! is_admin() ) {
+    add_action( 'init', 'ecopower_tracker_register_shortcodes' );
 }
 
-// Placeholder for displaying the Reporting Intervals page
-function ecopower_tracker_reporting_intervals() {
-    // Reporting Intervals content goes here
-    echo '<div class="wrap"><h1>' . __( 'Reporting Intervals', 'ecopower-tracker' ) . '</h1>';
-    echo '<p>' . __( 'Configure the reporting intervals for power generation and CO2 offset.', 'ecopower-tracker' ) . '</p></div>';
+function ecopower_tracker_register_shortcodes() {
+    add_shortcode( 'ecopower_tracker_total_power', 'ecopower_tracker_total_power_shortcode' );
+    add_shortcode( 'ecopower_tracker_total_co2', 'ecopower_tracker_total_co2_shortcode' );
+    add_shortcode( 'ecopower_tracker_projects', 'ecopower_tracker_projects_shortcode' );
+    add_shortcode( 'ecopower_tracker_total_power_number', 'ecopower_tracker_total_power_number_shortcode' );
+    add_shortcode( 'ecopower_tracker_total_co2_number', 'ecopower_tracker_total_co2_number_shortcode' );
+    add_shortcode( 'ecopower_tracker_project', 'ecopower_tracker_project_shortcode' );
+    add_shortcode( 'ecopower_tracker_company', 'ecopower_tracker_company_shortcode' );
+    add_shortcode( 'ecopower_tracker_location', 'ecopower_tracker_location_shortcode' );
+    add_shortcode( 'ecopower_tracker_type', 'ecopower_tracker_type_shortcode' );
+    add_shortcode( 'ecopower_tracker_total_capacity', 'ecopower_tracker_total_capacity_shortcode' );
+    add_shortcode( 'ecopower_tracker_project_capacity', 'ecopower_tracker_project_capacity_shortcode' );
+    add_shortcode( 'ecopower_tracker_company_capacity', 'ecopower_tracker_company_capacity_shortcode' );
+    add_shortcode( 'ecopower_tracker_location_capacity', 'ecopower_tracker_location_capacity_shortcode' );
+    add_shortcode( 'ecopower_tracker_type_capacity', 'ecopower_tracker_type_capacity_shortcode' );
 }
 
-// Placeholder for displaying the About page
-function ecopower_tracker_about_page() {
-    echo '<div class="wrap">';
-    echo '<h1>' . __( 'About EcoPower Tracker', 'ecopower-tracker' ) . '</h1>';
-    echo '<div style="text-align: center;"><img src="' . plugin_dir_url( __FILE__ ) . 'img/EcoTracker-Logo.webp" style="max-width: 20%;" alt="EcoPower Tracker Logo" /></div>';
-    echo '<p>' . __( 'Version 2.1e', 'ecopower-tracker' ) . '</p>';
-    echo '<p>' . __( 'EcoPower Tracker helps you manage and display renewable energy project data, including total power generation and CO2 offset.', 'ecopower-tracker' ) . '</p>';
-    echo '<h2>' . __( 'Usage Manual', 'ecopower-tracker' ) . '</h2>';
-    echo '<p>' . __( 'Use the shortcodes [ecopower_tracker_projects], [ecopower_tracker_total_power], [ecopower_tracker_total_co2], [ecopower_tracker_total_power_number], and [ecopower_tracker_total_co2_number] to display project information on your site.', 'ecopower-tracker' ) . '</p>';
-    echo '<p>' . __( 'For support, visit our GitHub page: <a href="https://github.com/saqibj/EcoTracker/" target="_blank">EcoPower Tracker on GitHub</a>.', 'ecopower-tracker' ) . '</p>';
-    echo '<p>' . __( 'To report issues or request features, open an issue on our GitHub Issues page: <a href="https://github.com/saqibj/EcoTracker/issues" target="_blank">GitHub Issues</a>.', 'ecopower-tracker' ) . '</p>';
-    echo '</div>';
-}
+// Add your shortcode functions here or include them from the shortcodes.php file
 
 ?>

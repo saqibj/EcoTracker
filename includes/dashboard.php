@@ -26,8 +26,8 @@ function ecopower_tracker_dashboard_content() {
     <div class="wrap">
         <h1><?php _e( 'EcoPower Tracker Dashboard', 'ecopower-tracker' ); ?></h1>
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-            <p style="font-size: 20px;"><strong><?php _e( 'Total Power Generated:', 'ecopower-tracker' ); ?></strong> <?php echo number_format( $total_power, 2 ) . ' MWh'; ?></p>
-            <p style="font-size: 20px;"><strong><?php _e( 'Total CO2 Offset:', 'ecopower-tracker' ); ?></strong> <?php echo number_format( $total_co2_offset, 2 ) . ' kg'; ?></p>
+            <p style="font-size: 20px; font-weight: bold; text-align: center;"><?php _e( 'Total Power Generated:', 'ecopower-tracker' ); ?> <?php echo number_format( $total_power, 2 ) . ' MWh'; ?></p>
+            <p style="font-size: 20px; font-weight: bold; text-align: center;"><?php _e( 'Total CO2 Offset:', 'ecopower-tracker' ); ?> <?php echo number_format( $total_co2_offset, 2 ) . ' kg'; ?></p>
         </div>
         
         <h2><?php _e( 'All Projects', 'ecopower-tracker' ); ?></h2>
@@ -68,5 +68,4 @@ function ecopower_tracker_dashboard_content() {
     </div>
     <?php
 }
-
 ?>
