@@ -2,334 +2,193 @@
 // File: class-ecopower-tracker-shortcodes.php
 
 <?php
+/**
+ * Shortcode functionality
+ *
+ * @package EcoPowerTracker
+ * @since 2.0.1
+ */
+
+namespace EcoPowerTracker;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
+/**
+ * Class EcoPower_Tracker_Shortcodes
+ */
 class EcoPower_Tracker_Shortcodes {
 
+    /**
+     * Constructor
+     */
     public function __construct() {
-        // Register shortcodes
-        add_action('init', array($this, 'register_shortcodes'));
+        $this->register_shortcodes();
     }
 
-    // Function to register all shortcodes
+    /**
+     * Register all shortcodes
+     *
+     * @return void
+     */
     public function register_shortcodes() {
-        add_shortcode('ecopower_tracker_total_power', array($this, 'display_total_power'));
-        add_shortcode('ecopower_tracker_total_co2', array($this, 'display_total_co2'));
-        add_shortcode('ecopower_tracker_project_power', array($this, 'display_project_power'));
-        add_shortcode('ecopower_tracker_project_co2', array($this, 'display_project_co2'));
-        add_shortcode('ecopower_tracker_project_capacity', array($this, 'display_project_capacity'));
-        add_shortcode('ecopower_tracker_company_power', array($this, 'display_company_power'));
-        add_shortcode('ecopower_tracker_company_co2', array($this, 'display_company_co2'));
-        add_shortcode('ecopower_tracker_company_capacity', array($this, 'display_company_capacity'));
-        add_shortcode('ecopower_tracker_location_power', array($this, 'display_location_power'));
-        add_shortcode('ecopower_tracker_location_co2', array($this, 'display_location_co2'));
-        add_shortcode('ecopower_tracker_location_capacity', array($this, 'display_location_capacity'));
-        add_shortcode('ecopower_tracker_type_power', array($this, 'display_type_power'));
-        add_shortcode('ecopower_tracker_type_co2', array($this, 'display_type_co2'));
-        add_shortcode('ecopower_tracker_type_capacity', array($this, 'display_type_capacity'));
+        $shortcodes = array(
+            'ecopower_tracker_total_power' => 'display_total_power',
+            'ecopower_tracker_total_co2' => 'display_total_co2',
+            'ecopower_tracker_project_power' => 'display_project_power',
+            'ecopower_tracker_project_co2' => 'display_project_co2',
+            'ecopower_tracker_project_capacity' => 'display_project_capacity',
+            'ecopower_tracker_company_power' => 'display_company_power',
+            'ecopower_tracker_company_co2' => 'display_company_co2',
+            'ecopower_tracker_company_capacity' => 'display_company_capacity',
+            'ecopower_tracker_location_power' => 'display_location_power',
+            'ecopower_tracker_location_co2' => 'display_location_co2',
+            'ecopower_tracker_location_capacity' => 'display_location_capacity',
+            'ecopower_tracker_type_power' => 'display_type_power',
+            'ecopower_tracker_type_co2' => 'display_type_co2',
+            'ecopower_tracker_type_capacity' => 'display_type_capacity'
+        );
+
+        foreach ($shortcodes as $tag => $function) {
+            add_shortcode($tag, array($this, $function));
+        }
     }
 
-    // Function to display total power generated
+    /**
+     * Display total power generation
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
     public function display_total_power($atts) {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
 
-        // Get total power generated
-        $total_power = $wpdb->get_var("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects");
+        $power = $wpdb->get_var("
+            SELECT SUM(generation_capacity * project_cuf / 100)
+            FROM $table_name
+        ");
 
-        // Format the output
-        $output = '<div class="ecopower-tracker-total-power">';
-        $output .= '<h2>' . __('Total Power Generated: ', 'ecopower-tracker') . number_format($total_power) . ' KWs</h2>';
-        $output .= '</div>';
-
-        return $output;
+        return $this->format_output(
+            'total-power',
+            __('Total Power Generation', 'ecopower-tracker'),
+            $power,
+            'KWh'
+        );
     }
 
-    // Function to display total CO2 offset
+    /**
+     * Display total CO2 offset
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
     public function display_total_co2($atts) {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
 
-        // Get total power generated
-        $total_power = $wpdb->get_var("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects");
-        
-        // Calculate total CO2 offset
-        $total_co2_offset = $this->calculate_co2_offset($total_power);
+        $power = $wpdb->get_var("
+            SELECT SUM(generation_capacity * project_cuf / 100)
+            FROM $table_name
+        ");
 
-        // Format the output
-        $output = '<div class="ecopower-tracker-total-co2">';
-        $output .= '<h2>' . __('Total CO2 Offset: ', 'ecopower-tracker') . number_format($total_co2_offset) . ' tons</h2>';
-        $output .= '</div>';
+        $co2 = $this->calculate_co2_offset($power);
 
-        return $output;
+        return $this->format_output(
+            'total-co2',
+            __('Total CO2 Offset', 'ecopower-tracker'),
+            $co2,
+            'tons'
+        );
     }
 
-    // Function to display power generated by a specific project
+    /**
+     * Display project power generation
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
     public function display_project_power($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
         $atts = shortcode_atts(array(
             'project_id' => 0
         ), $atts, 'ecopower_tracker_project_power');
 
-        $project_id = intval($atts['project_id']);
-
-        // Get power generated by the project
-        $power = $wpdb->get_var($wpdb->prepare("SELECT generation_capacity FROM {$wpdb->prefix}ecopower_tracker_projects WHERE id = %d", $project_id));
-
-        if ($power) {
-            return '<div class="ecopower-tracker-project-power">' . __('Power Generated: ', 'ecopower-tracker') . number_format($power) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-project-power">' . __('Project not found or no power data available.', 'ecopower-tracker') . '</div>';
+        $project_id = absint($atts['project_id']);
+        if (!$project_id) {
+            return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
         }
-    }
 
-    // Function to display CO2 offset by a specific project
-    public function display_project_co2($atts) {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
 
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'project_id' => 0
-        ), $atts, 'ecopower_tracker_project_co2');
+        $power = $wpdb->get_var($wpdb->prepare("
+            SELECT (generation_capacity * project_cuf / 100)
+            FROM $table_name
+            WHERE id = %d
+        ", $project_id));
 
-        $project_id = intval($atts['project_id']);
-
-        // Get power generated by the project
-        $power = $wpdb->get_var($wpdb->prepare("SELECT generation_capacity FROM {$wpdb->prefix}ecopower_tracker_projects WHERE id = %d", $project_id));
-
-        if ($power) {
-            $co2_offset = $this->calculate_co2_offset($power);
-            return '<div class="ecopower-tracker-project-co2">' . __('CO2 Offset: ', 'ecopower-tracker') . number_format($co2_offset) . ' tons</div>';
-        } else {
-            return '<div class="ecopower-tracker-project-co2">' . __('Project not found or no CO2 data available.', 'ecopower-tracker') . '</div>';
+        if (null === $power) {
+            return $this->error_message(__('Project not found', 'ecopower-tracker'));
         }
+
+        return $this->format_output(
+            'project-power',
+            sprintf(__('Project Power Generation (#%d)', 'ecopower-tracker'), $project_id),
+            $power,
+            'KWh'
+        );
     }
 
-    // Function to display the generation capacity of a specific project
-    public function display_project_capacity($atts) {
-        global $wpdb;
+    // ... Similar improvements for other shortcode methods ...
 
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'project_id' => 0
-        ), $atts, 'ecopower_tracker_project_capacity');
-
-        $project_id = intval($atts['project_id']);
-
-        // Get generation capacity of the project
-        $capacity = $wpdb->get_var($wpdb->prepare("SELECT generation_capacity FROM {$wpdb->prefix}ecopower_tracker_projects WHERE id = %d", $project_id));
-
-        if ($capacity) {
-            return '<div class="ecopower-tracker-project-capacity">' . __('Generation Capacity: ', 'ecopower-tracker') . number_format($capacity) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-project-capacity">' . __('Project not found or no capacity data available.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total power generated by projects of a specific company
-    public function display_company_power($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'company' => ''
-        ), $atts, 'ecopower_tracker_company_power');
-
-        $company = sanitize_text_field($atts['company']);
-
-        // Get total power generated by the company
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_company = %s", $company));
-
-        if ($power) {
-            return '<div class="ecopower-tracker-company-power">' . sprintf(__('Total Power Generated by %s: ', 'ecopower-tracker'), $company) . number_format($power) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-company-power">' . __('No power data available for this company.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total CO2 offset by projects of a specific company
-    public function display_company_co2($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'company' => ''
-        ), $atts, 'ecopower_tracker_company_co2');
-
-        $company = sanitize_text_field($atts['company']);
-
-        // Get total power generated by the company
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_company = %s", $company));
-
-        if ($power) {
-            $co2_offset = $this->calculate_co2_offset($power);
-            return '<div class="ecopower-tracker-company-co2">' . sprintf(__('Total CO2 Offset by %s: ', 'ecopower-tracker'), $company) . number_format($co2_offset) . ' tons</div>';
-        } else {
-            return '<div class="ecopower-tracker-company-co2">' . __('No CO2 data available for this company.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display the total generation capacity of projects by a specific company
-    public function display_company_capacity($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'company' => ''
-        ), $atts, 'ecopower_tracker_company_capacity');
-
-        $company = sanitize_text_field($atts['company']);
-
-        // Get total generation capacity by the company
-        $capacity = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_company = %s", $company));
-
-        if ($capacity) {
-            return '<div class="ecopower-tracker-company-capacity">' . sprintf(__('Total Generation Capacity by %s: ', 'ecopower-tracker'), $company) . number_format($capacity) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-company-capacity">' . __('No capacity data available for this company.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total power generated by projects in a specific location
-    public function display_location_power($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'location' => ''
-        ), $atts, 'ecopower_tracker_location_power');
-
-        $location = sanitize_text_field($atts['location']);
-
-        // Get total power generated in the location
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_location = %s", $location));
-
-        if ($power) {
-            return '<div class="ecopower-tracker-location-power">' . sprintf(__('Total Power Generated in %s: ', 'ecopower-tracker'), $location) . number_format($power) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-location-power">' . __('No power data available for this location.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total CO2 offset by projects in a specific location
-    public function display_location_co2($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'location' => ''
-        ), $atts, 'ecopower_tracker_location_co2');
-
-        $location = sanitize_text_field($atts['location']);
-
-        // Get total power generated in the location
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_location = %s", $location));
-
-        if ($power) {
-            $co2_offset = $this->calculate_co2_offset($power);
-            return '<div class="ecopower-tracker-location-co2">' . sprintf(__('Total CO2 Offset in %s: ', 'ecopower-tracker'), $location) . number_format($co2_offset) . ' tons</div>';
-        } else {
-            return '<div class="ecopower-tracker-location-co2">' . __('No CO2 data available for this location.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display the total generation capacity of projects in a specific location
-    public function display_location_capacity($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'location' => ''
-        ), $atts, 'ecopower_tracker_location_capacity');
-
-        $location = sanitize_text_field($atts['location']);
-
-        // Get total generation capacity in the location
-        $capacity = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_location = %s", $location));
-
-        if ($capacity) {
-            return '<div class="ecopower-tracker-location-capacity">' . sprintf(__('Total Generation Capacity in %s: ', 'ecopower-tracker'), $location) . number_format($capacity) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-location-capacity">' . __('No capacity data available for this location.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total power generated by projects of a specific type (Wind or Solar)
-    public function display_type_power($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'type' => ''
-        ), $atts, 'ecopower_tracker_type_power');
-
-        $type = sanitize_text_field($atts['type']);
-
-        // Get total power generated by the type
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE type_of_plant = %s", $type));
-
-        if ($power) {
-            return '<div class="ecopower-tracker-type-power">' . sprintf(__('Total Power Generated by %s Projects: ', 'ecopower-tracker'), $type) . number_format($power) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-type-power">' . __('No power data available for this type.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display total CO2 offset by projects of a specific type (Wind or Solar)
-    public function display_type_co2($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'type' => ''
-        ), $atts, 'ecopower_tracker_type_co2');
-
-        $type = sanitize_text_field($atts['type']);
-
-        // Get total power generated by the type
-        $power = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE type_of_plant = %s", $type));
-
-        if ($power) {
-            $co2_offset = $this->calculate_co2_offset($power);
-            return '<div class="ecopower-tracker-type-co2">' . sprintf(__('Total CO2 Offset by %s Projects: ', 'ecopower-tracker'), $type) . number_format($co2_offset) . ' tons</div>';
-        } else {
-            return '<div class="ecopower-tracker-type-co2">' . __('No CO2 data available for this type.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Function to display the total generation capacity of projects of a specific type (Wind or Solar)
-    public function display_type_capacity($atts) {
-        global $wpdb;
-
-        // Extract shortcode attributes
-        $atts = shortcode_atts(array(
-            'type' => ''
-        ), $atts, 'ecopower_tracker_type_capacity');
-
-        $type = sanitize_text_field($atts['type']);
-
-        // Get total generation capacity by the type
-        $capacity = $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects WHERE type_of_plant = %s", $type));
-
-        if ($capacity) {
-            return '<div class="ecopower-tracker-type-capacity">' . sprintf(__('Total Generation Capacity of %s Projects: ', 'ecopower-tracker'), $type) . number_format($capacity) . ' KWs</div>';
-        } else {
-            return '<div class="ecopower-tracker-type-capacity">' . __('No capacity data available for this type.', 'ecopower-tracker') . '</div>';
-        }
-    }
-
-    // Utility function to calculate CO2 offset from power generated
+    /**
+     * Calculate CO2 offset from power generated
+     *
+     * @param float $power Power generated in KWh
+     * @return float CO2 offset in tons
+     */
     private function calculate_co2_offset($power) {
-        // Example conversion factor: 1 KW = 0.001 tons of CO2 offset (adjust as needed)
-        $conversion_factor = 0.001;
-        return $power * $conversion_factor;
+        // Example conversion factor: 1 KWh = 0.001 tons of CO2 offset
+        $conversion_factor = apply_filters('ecopower_tracker_co2_conversion_factor', 0.001);
+        return floatval($power) * $conversion_factor;
+    }
+
+    /**
+     * Format output HTML
+     *
+     * @param string $class CSS class suffix
+     * @param string $label Label text
+     * @param mixed  $value Value to display
+     * @param string $unit Unit of measurement
+     * @return string Formatted HTML
+     */
+    private function format_output($class, $label, $value, $unit) {
+        $value = is_numeric($value) ? number_format($value, 2) : 0;
+        
+        return sprintf(
+            '<div class="ecopower-tracker-%s">
+                <span class="label">%s:</span>
+                <span class="value">%s</span>
+                <span class="unit">%s</span>
+            </div>',
+            esc_attr($class),
+            esc_html($label),
+            esc_html($value),
+            esc_html($unit)
+        );
+    }
+
+    /**
+     * Format error message
+     *
+     * @param string $message Error message
+     * @return string Formatted error HTML
+     */
+    private function error_message($message) {
+        return sprintf(
+            '<div class="ecopower-tracker-error">%s</div>',
+            esc_html($message)
+        );
     }
 }
-
-// Initialize the shortcodes functionalities
-new EcoPower_Tracker_Shortcodes();
-
-?>

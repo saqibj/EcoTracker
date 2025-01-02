@@ -2,91 +2,233 @@
 // File: class-ecopower-tracker-csv-process.php
 
 <?php
+/**
+ * CSV Processing functionality
+ *
+ * @package EcoPowerTracker
+ * @since 2.0.1
+ */
+
+namespace EcoPowerTracker;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
+/**
+ * Class EcoPower_Tracker_CSV_Process
+ */
 class EcoPower_Tracker_CSV_Process {
 
+    /**
+     * Required CSV columns
+     *
+     * @var array
+     */
+    private $required_columns = array(
+        'project_number',
+        'project_company',
+        'project_name',
+        'project_location',
+        'type_of_plant',
+        'project_cuf',
+        'generation_capacity',
+        'date_of_activation'
+    );
+
+    /**
+     * Constructor
+     */
     public function __construct() {
-        // Hook to process CSV file after upload
         add_action('admin_post_ecopower_tracker_process_csv', array($this, 'process_csv_file'));
     }
 
-    // Function to process the uploaded CSV file
+    /**
+     * Process the uploaded CSV file
+     *
+     * @return void
+     */
     public function process_csv_file() {
-        // Check nonce for security
-        if (!isset($_POST['ecopower_tracker_nonce']) || !wp_verify_nonce($_POST['ecopower_tracker_nonce'], 'ecopower_tracker_process_csv')) {
-            wp_die(__('Security check failed', 'ecopower-tracker'));
-        }
+        try {
+            // Check capabilities
+            if (!current_user_can('manage_options')) {
+                wp_die(__('Unauthorized access', 'ecopower-tracker'));
+            }
 
-        // Get the CSV file path
-        if (isset($_GET['csv_uploaded'])) {
-            $file_path = urldecode($_GET['csv_uploaded']);
+            // Verify nonce
+            if (!isset($_POST['ecopower_tracker_nonce']) || 
+                !wp_verify_nonce($_POST['ecopower_tracker_nonce'], 'ecopower_tracker_process_csv')) {
+                wp_die(__('Security check failed', 'ecopower-tracker'));
+            }
 
-            // Check if file exists
+            // Get CSV file path from session
+            if (!session_id()) {
+                session_start();
+            }
+
+            if (!isset($_SESSION['ecopower_tracker_csv_file'])) {
+                throw new \Exception(__('No CSV file found for processing', 'ecopower-tracker'));
+            }
+
+            $file_path = $_SESSION['ecopower_tracker_csv_file'];
+
+            // Validate file exists
             if (!file_exists($file_path)) {
-                wp_die(__('CSV file not found', 'ecopower-tracker'));
+                throw new \Exception(__('CSV file not found', 'ecopower-tracker'));
             }
 
-            // Open the CSV file for reading
-            if (($handle = fopen($file_path, 'r')) !== false) {
-                // Skip the header row
-                fgetcsv($handle);
+            // Process CSV file
+            $this->import_csv_data($file_path);
 
-                // Process each row in the CSV
-                while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-                    // Prepare data for insertion
-                    $project_data = array(
-                        'project_number' => sanitize_text_field($data[0]),
-                        'project_company' => sanitize_text_field($data[1]),
-                        'project_name' => sanitize_text_field($data[2]),
-                        'project_location' => sanitize_text_field($data[3]),
-                        'type_of_plant' => sanitize_text_field($data[4]),
-                        'project_cuf' => sanitize_text_field($data[5]),
-                        'generation_capacity' => floatval($data[6]),
-                        'date_of_activation' => date('Y-m-d', strtotime($data[7]))
-                    );
+            // Clean up
+            unlink($file_path);
+            unset($_SESSION['ecopower_tracker_csv_file']);
 
-                    // Insert or update the project data in the database
-                    $this->insert_or_update_project($project_data);
-                }
-                fclose($handle);
+            // Redirect with success message
+            wp_safe_redirect(add_query_arg(
+                array(
+                    'page' => 'ecopower-tracker',
+                    'message' => 'import_success'
+                ),
+                admin_url('admin.php')
+            ));
+            exit;
 
-                // Redirect to dashboard with success message
-                wp_redirect(admin_url('admin.php?page=ecopower-tracker&csv_processed=success'));
-                exit;
-            } else {
-                wp_die(__('Failed to open the CSV file', 'ecopower-tracker'));
-            }
-        } else {
-            wp_die(__('No CSV file specified', 'ecopower-tracker'));
+        } catch (\Exception $e) {
+            error_log('EcoPower Tracker CSV Processing Error: ' . $e->getMessage());
+            wp_die(
+                esc_html($e->getMessage()),
+                esc_html__('Processing Error', 'ecopower-tracker'),
+                array('response' => 500, 'back_link' => true)
+            );
         }
     }
 
-    // Function to insert or update project data
+    /**
+     * Import CSV data
+     *
+     * @param string $file_path Path to CSV file
+     * @return void
+     * @throws \Exception If import fails
+     */
+    private function import_csv_data($file_path) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+
+        // Start transaction
+        $wpdb->query('START TRANSACTION');
+
+        try {
+            $handle = fopen($file_path, 'r');
+            if ($handle === false) {
+                throw new \Exception(__('Failed to open CSV file', 'ecopower-tracker'));
+            }
+
+            // Validate header row
+            $header = fgetcsv($handle);
+            $this->validate_csv_headers($header);
+
+            // Process rows
+            $row_count = 0;
+            while (($data = fgetcsv($handle)) !== false) {
+                $row_count++;
+
+                // Skip empty rows
+                if (empty(array_filter($data))) {
+                    continue;
+                }
+
+                // Prepare and validate data
+                $project_data = $this->prepare_project_data($data, $header);
+                
+                // Insert or update project
+                $this->insert_or_update_project($project_data);
+            }
+
+            fclose($handle);
+            $wpdb->query('COMMIT');
+
+        } catch (\Exception $e) {
+            $wpdb->query('ROLLBACK');
+            throw $e;
+        }
+    }
+
+    /**
+     * Validate CSV headers
+     *
+     * @param array $headers CSV header row
+     * @return void
+     * @throws \Exception If headers are invalid
+     */
+    private function validate_csv_headers($headers) {
+        if (!$headers) {
+            throw new \Exception(__('Invalid CSV headers', 'ecopower-tracker'));
+        }
+
+        $missing_columns = array_diff($this->required_columns, $headers);
+        if (!empty($missing_columns)) {
+            throw new \Exception(sprintf(
+                __('Missing required columns: %s', 'ecopower-tracker'),
+                implode(', ', $missing_columns)
+            ));
+        }
+    }
+
+    /**
+     * Prepare project data from CSV row
+     *
+     * @param array $data    Row data
+     * @param array $headers CSV headers
+     * @return array Prepared project data
+     */
+    private function prepare_project_data($data, $headers) {
+        $project_data = array_combine($headers, $data);
+        
+        // Sanitize and validate each field
+        return array(
+            'project_number' => sanitize_text_field($project_data['project_number']),
+            'project_company' => sanitize_text_field($project_data['project_company']),
+            'project_name' => sanitize_text_field($project_data['project_name']),
+            'project_location' => sanitize_text_field($project_data['project_location']),
+            'type_of_plant' => sanitize_text_field($project_data['type_of_plant']),
+            'project_cuf' => floatval($project_data['project_cuf']),
+            'generation_capacity' => floatval($project_data['generation_capacity']),
+            'date_of_activation' => sanitize_text_field($project_data['date_of_activation'])
+        );
+    }
+
+    /**
+     * Insert or update project in database
+     *
+     * @param array $project_data Project data
+     * @return void
+     * @throws \Exception If database operation fails
+     */
     private function insert_or_update_project($project_data) {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
 
-        // Check if the project already exists
-        $existing_project = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT * FROM {$wpdb->prefix}ecopower_tracker_projects WHERE project_number = %s",
-                $project_data['project_number']
-            )
-        );
+        // Check if project exists
+        $existing = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM $table_name WHERE project_number = %s",
+            $project_data['project_number']
+        ));
 
-        if ($existing_project) {
+        if ($existing) {
             // Update existing project
-            $wpdb->update(
-                "{$wpdb->prefix}ecopower_tracker_projects",
+            $result = $wpdb->update(
+                $table_name,
                 $project_data,
                 array('project_number' => $project_data['project_number'])
             );
         } else {
             // Insert new project
-            $wpdb->insert("{$wpdb->prefix}ecopower_tracker_projects", $project_data);
+            $result = $wpdb->insert($table_name, $project_data);
+        }
+
+        if ($result === false) {
+            throw new \Exception($wpdb->last_error);
         }
     }
 }

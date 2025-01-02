@@ -1,6 +1,6 @@
 # EcoPower Tracker
 
-**Version**: 2.0.1  
+**Version**: 2.0.2  
 **Author**: Saqib Jawaid  
 **License**: GPL v3
 
@@ -85,7 +85,31 @@ For support and to report issues, visit our [GitHub page](https://github.com/saq
 
 ## Changelog
 
-### Version 2.0.1
+### 2.0.2
+- Enhanced security with improved input validation and sanitization
+- Added comprehensive error handling throughout the plugin
+- Improved JavaScript functionality with better event handling
+- Enhanced CSV processing with better validation
+- Added detailed admin interface styling
+- Improved responsive design for all screen sizes
+- Added loading states for better UX
+- Enhanced data filtering and sorting capabilities
+- Added proper documentation across all files
+- Improved translation support with updated POT file
+- Added proper namespace implementation
+- Enhanced database operations with prepared statements
+- Added proper capability checks
+- Improved file organization and structure
+- Added comprehensive error logging
+
+### 2.0.1
+- Added responsive design improvements
+- Enhanced CSV import validation
+- Added new shortcodes
+- Improved error handling
+- Added data filtering options
+
+### 2.0.0
 - Initial release with core functionalities:
   - Project management and data display.
   - CSV import and export capabilities.

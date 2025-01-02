@@ -2,66 +2,213 @@
 // File: class-ecopower-tracker-dashboard.php
 
 <?php
+/**
+ * Dashboard functionality
+ *
+ * @package EcoPowerTracker
+ * @since 2.0.1
+ */
+
+namespace EcoPowerTracker;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
+/**
+ * Class EcoPower_Tracker_Dashboard
+ */
 class EcoPower_Tracker_Dashboard {
 
+    /**
+     * Constructor
+     */
     public function __construct() {
-        // Hook to display the dashboard page
         add_action('admin_menu', array($this, 'setup_dashboard_page'));
+        add_action('admin_init', array($this, 'handle_admin_actions'));
     }
 
-    // Function to set up the dashboard page
+    /**
+     * Set up the dashboard page
+     *
+     * @return void
+     */
     public function setup_dashboard_page() {
-        // Add a new submenu under the main EcoPower Tracker menu
+        add_menu_page(
+            __('EcoPower Tracker', 'ecopower-tracker'),
+            __('EcoPower Tracker', 'ecopower-tracker'),
+            'manage_options',
+            'ecopower-tracker',
+            array($this, 'render_dashboard'),
+            'dashicons-chart-area',
+            30
+        );
+
         add_submenu_page(
-            'ecopower-tracker',               // Parent slug
-            __('Dashboard', 'ecopower-tracker'), // Page title
-            __('Dashboard', 'ecopower-tracker'), // Menu title
-            'manage_options',                 // Capability
-            'ecopower-tracker',               // Menu slug
-            array($this, 'render_dashboard')  // Callback function
+            'ecopower-tracker',
+            __('Dashboard', 'ecopower-tracker'),
+            __('Dashboard', 'ecopower-tracker'),
+            'manage_options',
+            'ecopower-tracker',
+            array($this, 'render_dashboard')
         );
     }
 
-    // Function to render the dashboard page
+    /**
+     * Handle admin actions
+     *
+     * @return void
+     */
+    public function handle_admin_actions() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Handle messages
+        if (isset($_GET['message'])) {
+            add_action('admin_notices', array($this, 'display_admin_notices'));
+        }
+    }
+
+    /**
+     * Display admin notices
+     *
+     * @return void
+     */
+    public function display_admin_notices() {
+        $message = sanitize_text_field($_GET['message']);
+        $notice_class = 'notice-success';
+        $notice_message = '';
+
+        switch ($message) {
+            case 'import_success':
+                $notice_message = __('CSV data imported successfully.', 'ecopower-tracker');
+                break;
+            case 'export_success':
+                $notice_message = __('Data exported successfully.', 'ecopower-tracker');
+                break;
+            case 'delete_success':
+                $notice_message = __('Project deleted successfully.', 'ecopower-tracker');
+                break;
+            case 'error':
+                $notice_class = 'notice-error';
+                $notice_message = __('An error occurred. Please try again.', 'ecopower-tracker');
+                break;
+        }
+
+        if ($notice_message) {
+            printf(
+                '<div class="notice %s is-dismissible"><p>%s</p></div>',
+                esc_attr($notice_class),
+                esc_html($notice_message)
+            );
+        }
+    }
+
+    /**
+     * Render the dashboard page
+     *
+     * @return void
+     */
     public function render_dashboard() {
-        // Include the dashboard template
-        include plugin_dir_path(__FILE__) . '../templates/admin/dashboard.php';
+        // Verify user capabilities
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Unauthorized access', 'ecopower-tracker'));
+        }
+
+        // Display dashboard content
+        include ECOPOWER_TRACKER_PATH . 'templates/admin/dashboard.php';
     }
 
-    // Function to display the total power generated and CO2 offset
-    public static function display_totals() {
+    /**
+     * Get dashboard statistics
+     *
+     * @return array
+     */
+    public function get_dashboard_stats() {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
 
-        // Calculate total power generated and total CO2 offset
-        $total_power = $wpdb->get_var("SELECT SUM(generation_capacity) FROM {$wpdb->prefix}ecopower_tracker_projects");
-        $total_co2_offset = self::calculate_total_co2_offset($total_power);
-
-        // Display totals in a formatted way
-        echo '<div class="ecopower-tracker-totals">';
-        echo '<h2>' . __('Total Power Generated: ', 'ecopower-tracker') . number_format($total_power) . ' KWs</h2>';
-        echo '<h2>' . __('Total CO2 Offset: ', 'ecopower-tracker') . number_format($total_co2_offset) . ' tons</h2>';
-        echo '</div>';
+        return array(
+            'total_projects' => $this->get_total_projects(),
+            'total_capacity' => $this->get_total_capacity(),
+            'plant_types' => $this->get_plant_type_stats(),
+            'recent_projects' => $this->get_recent_projects(5)
+        );
     }
 
-    // Function to calculate total CO2 offset
-    private static function calculate_total_co2_offset($total_power) {
-        // Example conversion factor: 1 KW = 0.001 tons of CO2 offset (adjust as needed)
-        $conversion_factor = 0.001;
-        return $total_power * $conversion_factor;
-    }
-
-    // Function to list all projects with basic details
-    public static function list_projects() {
+    /**
+     * Get total number of projects
+     *
+     * @return int
+     */
+    private function get_total_projects() {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+    }
 
-        // Retrieve all projects from the database
-        $projects = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}ecopower_tracker_projects");
+    /**
+     * Get total generation capacity
+     *
+     * @return float
+     */
+    private function get_total_capacity() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+        return (float) $wpdb->get_var("SELECT SUM(generation_capacity) FROM $table_name");
+    }
 
+    /**
+     * Get statistics by plant type
+     *
+     * @return array
+     */
+    private function get_plant_type_stats() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+        
+        $stats = $wpdb->get_results("
+            SELECT 
+                type_of_plant,
+                COUNT(*) as count,
+                SUM(generation_capacity) as total_capacity
+            FROM $table_name
+            GROUP BY type_of_plant
+        ");
+
+        return array_map(function($stat) {
+            return array(
+                'type' => $stat->type_of_plant,
+                'count' => (int) $stat->count,
+                'capacity' => (float) $stat->total_capacity
+            );
+        }, $stats);
+    }
+
+    /**
+     * Get recent projects
+     *
+     * @param int $limit Number of projects to return
+     * @return array
+     */
+    private function get_recent_projects($limit = 5) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+        
+        return $wpdb->get_results($wpdb->prepare("
+            SELECT *
+            FROM $table_name
+            ORDER BY date_of_activation DESC
+            LIMIT %d
+        ", $limit));
+    }
+}
+
+// Initialize the dashboard functionalities
+new EcoPower_Tracker_Dashboard();
+
+?>
         // Display projects in a table
         echo '<table class="widefat fixed" cellspacing="0">';
         echo '<thead><tr>';
