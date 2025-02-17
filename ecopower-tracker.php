@@ -37,12 +37,15 @@ spl_autoload_register(function ($class) {
         return;
     }
 
+    // Remove namespace and normalize path
     $class_path = str_replace('EcoPowerTracker\\', '', $class);
-    $class_path = str_replace('_', '-', strtolower($class_path));
-    $file = ECOPOWER_TRACKER_PATH . 'includes/class-' . $class_path . '.php';
+    $class_path = str_replace(['_', '\\'], '-', $class_path);
+    $file = ECOPOWER_TRACKER_PATH . 'includes/class-' . strtolower($class_path) . '.php';
 
     if (file_exists($file)) {
         require_once $file;
+    } else {
+        error_log(sprintf('EcoPower Tracker: Class file not found: %s', $file));
     }
 });
 
@@ -59,16 +62,74 @@ foreach ($required_files as $file) {
     require_once $file_path;
 }
 
+// Add right after namespace declaration, before any class usage
+class EcoPowerTrackerException extends \Exception {}
+
+// Add error handler setup right after constants
+function ecopower_tracker_error_handler($errno, $errstr, $errfile, $errline) {
+    error_log(sprintf(
+        'EcoPower Tracker Error: %s in %s on line %d',
+        $errstr,
+        $errfile,
+        $errline
+    ));
+    return true;
+}
+
+set_error_handler(__NAMESPACE__ . '\\ecopower_tracker_error_handler');
+
 /**
  * Main plugin class
  */
 class EcoPowerTracker {
+    private static $instance = null;
+    
+    /**
+     * Get singleton instance
+     */
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
     /**
      * Constructor
      */
-    public function __construct() {
-        // Hook to add menu items
+    private function __construct() {
+        // Check WordPress version
+        if (version_compare($GLOBALS['wp_version'], '5.0', '<')) {
+            add_action('admin_notices', array($this, 'display_version_notice'));
+            return;
+        }
+
+        // Check PHP version
+        if (version_compare(PHP_VERSION, '7.4', '<')) {
+            add_action('admin_notices', array($this, 'display_php_version_notice'));
+            return;
+        }
+
+        $this->init_hooks();
+    }
+
+    /**
+     * Initialize hooks
+     */
+    private function init_hooks() {
         add_action('admin_menu', array($this, 'add_admin_menus'));
+        add_action('init', array($this, 'load_textdomain'));
+    }
+
+    /**
+     * Load plugin textdomain
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain(
+            'ecopower-tracker',
+            false,
+            dirname(plugin_basename(__FILE__)) . '/languages'
+        );
     }
 
     /**
@@ -133,23 +194,86 @@ class EcoPowerTracker {
 
         include ECOPOWER_TRACKER_PATH . 'templates/admin/about.php';
     }
+
+    /**
+     * Display WordPress version notice
+     */
+    public function display_version_notice() {
+        $message = sprintf(
+            __('EcoPower Tracker requires WordPress version %s or higher.', 'ecopower-tracker'),
+            '5.0'
+        );
+        echo '<div class="error"><p>' . esc_html($message) . '</p></div>';
+    }
+
+    /**
+     * Display PHP version notice
+     */
+    public function display_php_version_notice() {
+        $message = sprintf(
+            __('EcoPower Tracker requires PHP version %s or higher.', 'ecopower-tracker'),
+            '7.4'
+        );
+        echo '<div class="error"><p>' . esc_html($message) . '</p></div>';
+    }
 }
 
-// Initialize the plugin
-new EcoPowerTracker();
+// Replace "new EcoPowerTracker();" with:
+function ecopower_tracker_init() {
+    return EcoPowerTracker::get_instance();
+}
+add_action('plugins_loaded', __NAMESPACE__ . '\\ecopower_tracker_init');
 
 /**
  * Handle plugin activation
  */
 function ecopower_tracker_activate() {
-    // Create or update the database table structure
-    ecopower_tracker_create_tables();
+    try {
+        // Verify PHP version
+        if (version_compare(PHP_VERSION, '7.4', '<')) {
+            throw new EcoPowerTrackerException(
+                sprintf('PHP version %s or higher is required', '7.4')
+            );
+        }
 
-    // Set default options
-    update_option('ecopower_tracker_version', ECOPOWER_TRACKER_VERSION);
-    
-    // Log activation
-    error_log(sprintf('EcoPower Tracker activated (v%s)', ECOPOWER_TRACKER_VERSION));
+        // Verify WordPress version
+        if (version_compare($GLOBALS['wp_version'], '5.0', '<')) {
+            throw new EcoPowerTrackerException(
+                sprintf('WordPress version %s or higher is required', '5.0')
+            );
+        }
+
+        // Create or update the database table structure
+        if (!function_exists('ecopower_tracker_create_tables')) {
+            throw new EcoPowerTrackerException('Required function missing: ecopower_tracker_create_tables');
+        }
+
+        if (!ecopower_tracker_create_tables()) {
+            throw new EcoPowerTrackerException('Failed to create database tables');
+        }
+
+        // Set default options
+        $default_options = array(
+            'ecopower_tracker_version' => ECOPOWER_TRACKER_VERSION,
+            'ecopower_tracker_install_date' => current_time('mysql'),
+            'ecopower_tracker_co2_factor' => 0.001, // Default CO2 conversion factor
+        );
+
+        foreach ($default_options as $option => $value) {
+            update_option($option, $value);
+        }
+        
+        // Log activation
+        error_log(sprintf(
+            'EcoPower Tracker activated (v%s) on PHP %s, WordPress %s',
+            ECOPOWER_TRACKER_VERSION,
+            PHP_VERSION,
+            $GLOBALS['wp_version']
+        ));
+    } catch (EcoPowerTrackerException $e) {
+        error_log('EcoPower Tracker activation failed: ' . $e->getMessage());
+        throw $e; // Re-throw to prevent activation
+    }
 }
 
 /**
