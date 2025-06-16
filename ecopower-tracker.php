@@ -3,7 +3,7 @@
  * Plugin Name: EcoPower Tracker
  * Plugin URI: https://github.com/saqibj/EcoTracker
  * Description: Track and display renewable energy project data including power generation and CO2 offset calculations.
- * Version: 2.0.2
+ * Version: 2.1.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Saqib Jawaid
@@ -23,25 +23,37 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ECOPOWER_TRACKER_VERSION', '2.0.2');
+define('ECOPOWER_TRACKER_VERSION', '2.1.0');
 define('ECOPOWER_TRACKER_PATH', plugin_dir_path(__FILE__));
 define('ECOPOWER_TRACKER_URL', plugin_dir_url(__FILE__));
 
 // Start output buffering to handle any potential issues with output
 ob_start();
 
+class EcoPowerTrackerException extends \Exception {}
+
+function ecopower_tracker_error_handler(
+    $errno, $errstr, $errfile, $errline
+) {
+    error_log(sprintf(
+        'EcoPower Tracker Error: %s in %s on line %d',
+        $errstr,
+        $errfile,
+        $errline
+    ));
+    return true;
+}
+
+set_error_handler(__NAMESPACE__ . '\\ecopower_tracker_error_handler');
+
 // Setup autoloader
 spl_autoload_register(function ($class) {
-    // Check if the class is from our namespace
     if (strpos($class, 'EcoPowerTracker\\') !== 0) {
         return;
     }
-
-    // Remove namespace and normalize path
     $class_path = str_replace('EcoPowerTracker\\', '', $class);
     $class_path = str_replace(['_', '\\'], '-', $class_path);
     $file = ECOPOWER_TRACKER_PATH . 'includes/class-' . strtolower($class_path) . '.php';
-
     if (file_exists($file)) {
         require_once $file;
     } else {
@@ -57,26 +69,11 @@ $required_files = [
 foreach ($required_files as $file) {
     $file_path = ECOPOWER_TRACKER_PATH . $file;
     if (!file_exists($file_path)) {
+        /* translators: %s: File name */
         wp_die(sprintf(__('Required file missing: %s', 'ecopower-tracker'), $file));
     }
     require_once $file_path;
 }
-
-// Add right after namespace declaration, before any class usage
-class EcoPowerTrackerException extends \Exception {}
-
-// Add error handler setup right after constants
-function ecopower_tracker_error_handler($errno, $errstr, $errfile, $errline) {
-    error_log(sprintf(
-        'EcoPower Tracker Error: %s in %s on line %d',
-        $errstr,
-        $errfile,
-        $errline
-    ));
-    return true;
-}
-
-set_error_handler(__NAMESPACE__ . '\\ecopower_tracker_error_handler');
 
 /**
  * Main plugin class
@@ -199,6 +196,7 @@ class EcoPowerTracker {
      * Display WordPress version notice
      */
     public function display_version_notice() {
+        /* translators: %s: WordPress version */
         $message = sprintf(
             __('EcoPower Tracker requires WordPress version %s or higher.', 'ecopower-tracker'),
             '5.0'
@@ -210,6 +208,7 @@ class EcoPowerTracker {
      * Display PHP version notice
      */
     public function display_php_version_notice() {
+        /* translators: %s: PHP version */
         $message = sprintf(
             __('EcoPower Tracker requires PHP version %s or higher.', 'ecopower-tracker'),
             '7.4'

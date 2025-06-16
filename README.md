@@ -1,6 +1,6 @@
 # EcoPower Tracker
 
-**Version**: 2.0.2  
+**Version**: 2.1.0  
 **Author**: Saqib Jawaid  
 **License**: GPL v3
 
@@ -84,6 +84,19 @@ To use a shortcode, simply place it in any page or post where you want the data 
 For support and to report issues, visit our [GitHub page](https://github.com/saqibj/EcoTracker).
 
 ## Changelog
+
+### 2.1.0
+- Full compliance with WordPress best practices
+- Added translators comments for all placeholder strings
+- Refactored session usage to user meta for CSV processing
+- Improved caching for shortcodes (performance)
+- Enhanced CSV header security and validation
+- Added minified asset support for frontend performance
+- Added composite database indexes for faster queries
+- Introduced centralized Config class for settings
+- Improved uninstall cleanup (removes all plugin data)
+- Updated translation (.pot) workflow and coverage
+- General codebase cleanup and modernization
 
 ### 2.0.2
 - Enhanced security with improved input validation and sanitization

@@ -42,7 +42,9 @@ function ecopower_tracker_create_tables() {
         UNIQUE KEY project_number (project_number),
         KEY type_of_plant (type_of_plant),
         KEY project_company (project_company),
-        KEY project_location (project_location)
+        KEY project_location (project_location),
+        KEY project_company_location (project_company, project_location),
+        KEY type_activation (type_of_plant, date_of_activation)
     ) $charset_collate;";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -60,16 +62,18 @@ function ecopower_tracker_enqueue_frontend_assets() {
         return;
     }
 
+    $suffix = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
+
     wp_enqueue_style(
         'ecopower-tracker-frontend',
-        ECOPOWER_TRACKER_URL . 'assets/css/ecopower-tracker-frontend.css',
+        ECOPOWER_TRACKER_URL . "assets/css/ecopower-tracker-frontend{$suffix}.css",
         array(),
         ECOPOWER_TRACKER_VERSION
     );
 
     wp_enqueue_script(
         'ecopower-tracker-frontend',
-        ECOPOWER_TRACKER_URL . 'assets/js/ecopower-tracker-frontend.js',
+        ECOPOWER_TRACKER_URL . "assets/js/ecopower-tracker-frontend{$suffix}.js",
         array('jquery'),
         ECOPOWER_TRACKER_VERSION,
         true

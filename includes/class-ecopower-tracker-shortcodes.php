@@ -11,6 +11,13 @@
 
 namespace EcoPowerTracker;
 
+use function add_shortcode;
+use function wp_cache_get;
+use function wp_cache_set;
+use function __;
+use function shortcode_atts;
+use function absint;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -62,14 +69,17 @@ class EcoPower_Tracker_Shortcodes {
      * @return string
      */
     public function display_total_power($atts) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-
-        $power = $wpdb->get_var("
-            SELECT SUM(generation_capacity * project_cuf / 100)
-            FROM $table_name
-        ");
-
+        $cache_key = 'ecopower_tracker_total_power';
+        $power = wp_cache_get($cache_key);
+        if (false === $power) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            $power = $wpdb->get_var("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+            ");
+            wp_cache_set($cache_key, $power, '', 3600); // Cache for 1 hour
+        }
         return $this->format_output(
             'total-power',
             __('Total Power Generation', 'ecopower-tracker'),
@@ -85,16 +95,18 @@ class EcoPower_Tracker_Shortcodes {
      * @return string
      */
     public function display_total_co2($atts) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-
-        $power = $wpdb->get_var("
-            SELECT SUM(generation_capacity * project_cuf / 100)
-            FROM $table_name
-        ");
-
-        $co2 = $this->calculate_co2_offset($power);
-
+        $cache_key = 'ecopower_tracker_total_co2';
+        $co2 = wp_cache_get($cache_key);
+        if (false === $co2) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            $power = $wpdb->get_var("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+            ");
+            $co2 = $this->calculate_co2_offset($power);
+            wp_cache_set($cache_key, $co2, '', 3600); // Cache for 1 hour
+        }
         return $this->format_output(
             'total-co2',
             __('Total CO2 Offset', 'ecopower-tracker'),
@@ -134,6 +146,7 @@ class EcoPower_Tracker_Shortcodes {
 
         return $this->format_output(
             'project-power',
+            /* translators: %d: Project ID */
             sprintf(__('Project Power Generation (#%d)', 'ecopower-tracker'), $project_id),
             $power,
             'KWh'

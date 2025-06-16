@@ -87,11 +87,9 @@ class EcoPower_Tracker_CSV_Upload {
                 throw new \Exception(__('Failed to move uploaded file', 'ecopower-tracker'));
             }
 
-            // Set session variable for processing
-            if (!session_id()) {
-                session_start();
-            }
-            $_SESSION['ecopower_tracker_csv_file'] = $destination;
+            // Set user meta variable for processing
+            $user_id = get_current_user_id();
+            update_user_meta($user_id, 'ecopower_tracker_csv_file', $destination);
 
             // Redirect to processing page
             wp_safe_redirect(add_query_arg(

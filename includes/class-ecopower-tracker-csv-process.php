@@ -61,19 +61,16 @@ class EcoPower_Tracker_CSV_Process {
                 wp_die(__('Security check failed', 'ecopower-tracker'));
             }
 
-            // Get CSV file path from session
-            if (!session_id()) {
-                session_start();
-            }
-
-            if (!isset($_SESSION['ecopower_tracker_csv_file'])) {
+            // Get CSV file path from user meta
+            $user_id = get_current_user_id();
+            $file_path = get_user_meta($user_id, 'ecopower_tracker_csv_file', true);
+            if (empty($file_path)) {
                 throw new \Exception(__('No CSV file found for processing', 'ecopower-tracker'));
             }
 
-            $file_path = $_SESSION['ecopower_tracker_csv_file'];
-
             // Validate file exists
             if (!file_exists($file_path)) {
+                delete_user_meta($user_id, 'ecopower_tracker_csv_file');
                 throw new \Exception(__('CSV file not found', 'ecopower-tracker'));
             }
 
@@ -82,7 +79,7 @@ class EcoPower_Tracker_CSV_Process {
 
             // Clean up
             unlink($file_path);
-            unset($_SESSION['ecopower_tracker_csv_file']);
+            delete_user_meta($user_id, 'ecopower_tracker_csv_file');
 
             // Redirect with success message
             wp_safe_redirect(add_query_arg(
@@ -162,16 +159,29 @@ class EcoPower_Tracker_CSV_Process {
      * @throws \Exception If headers are invalid
      */
     private function validate_csv_headers($headers) {
-        if (!$headers) {
+        if (!$headers || !is_array($headers)) {
             throw new \Exception(__('Invalid CSV headers', 'ecopower-tracker'));
         }
 
+        // Sanitize headers
+        $headers = array_map('sanitize_text_field', $headers);
+
+        // Check for required columns
         $missing_columns = array_diff($this->required_columns, $headers);
         if (!empty($missing_columns)) {
+            /* translators: %s: List of missing columns */
             throw new \Exception(sprintf(
                 __('Missing required columns: %s', 'ecopower-tracker'),
                 implode(', ', $missing_columns)
             ));
+        }
+
+        // Check for malicious column names
+        $malicious_patterns = array('/\.\./', '/\./', '<', '>', '%', 'script');
+        foreach ($headers as $header) {
+            if (preg_match('/(' . implode('|', $malicious_patterns) . ')/i', $header)) {
+                throw new \Exception(__('Invalid column name detected', 'ecopower-tracker'));
+            }
         }
     }
 
