@@ -153,7 +153,455 @@ class EcoPower_Tracker_Shortcodes {
         );
     }
 
-    // ... Similar improvements for other shortcode methods ...
+    /**
+     * Display project CO2 offset
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_project_co2($atts) {
+        $atts = shortcode_atts(array(
+            'project_id' => 0
+        ), $atts, 'ecopower_tracker_project_co2');
+
+        $project_id = absint($atts['project_id']);
+        if (!$project_id) {
+            return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+
+        $power = $wpdb->get_var($wpdb->prepare("
+            SELECT (generation_capacity * project_cuf / 100)
+            FROM $table_name
+            WHERE id = %d
+        ", $project_id));
+
+        if (null === $power) {
+            return $this->error_message(__('Project not found', 'ecopower-tracker'));
+        }
+
+        $co2 = $this->calculate_co2_offset($power);
+
+        return $this->format_output(
+            'project-co2',
+            /* translators: %d: Project ID */
+            sprintf(__('Project CO2 Offset (#%d)', 'ecopower-tracker'), $project_id),
+            $co2,
+            'tons'
+        );
+    }
+
+    /**
+     * Display project capacity
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_project_capacity($atts) {
+        $atts = shortcode_atts(array(
+            'project_id' => 0
+        ), $atts, 'ecopower_tracker_project_capacity');
+
+        $project_id = absint($atts['project_id']);
+        if (!$project_id) {
+            return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+
+        $capacity = $wpdb->get_var($wpdb->prepare("
+            SELECT generation_capacity
+            FROM $table_name
+            WHERE id = %d
+        ", $project_id));
+
+        if (null === $capacity) {
+            return $this->error_message(__('Project not found', 'ecopower-tracker'));
+        }
+
+        return $this->format_output(
+            'project-capacity',
+            /* translators: %d: Project ID */
+            sprintf(__('Project Capacity (#%d)', 'ecopower-tracker'), $project_id),
+            $capacity,
+            'KWs'
+        );
+    }
+
+    /**
+     * Display company power generation
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_company_power($atts) {
+        $atts = shortcode_atts(array(
+            'company' => ''
+        ), $atts, 'ecopower_tracker_company_power');
+
+        $company = sanitize_text_field($atts['company']);
+        if (empty($company)) {
+            return $this->error_message(__('Company name is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_company_power_' . md5($company);
+        $power = wp_cache_get($cache_key);
+        
+        if (false === $power) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE project_company = %s
+            ", $company));
+            
+            wp_cache_set($cache_key, $power, '', 3600);
+        }
+
+        return $this->format_output(
+            'company-power',
+            /* translators: %s: Company name */
+            sprintf(__('Power Generation - %s', 'ecopower-tracker'), $company),
+            $power,
+            'KWh'
+        );
+    }
+
+    /**
+     * Display company CO2 offset
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_company_co2($atts) {
+        $atts = shortcode_atts(array(
+            'company' => ''
+        ), $atts, 'ecopower_tracker_company_co2');
+
+        $company = sanitize_text_field($atts['company']);
+        if (empty($company)) {
+            return $this->error_message(__('Company name is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_company_co2_' . md5($company);
+        $co2 = wp_cache_get($cache_key);
+        
+        if (false === $co2) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE project_company = %s
+            ", $company));
+            
+            $co2 = $this->calculate_co2_offset($power);
+            wp_cache_set($cache_key, $co2, '', 3600);
+        }
+
+        return $this->format_output(
+            'company-co2',
+            /* translators: %s: Company name */
+            sprintf(__('CO2 Offset - %s', 'ecopower-tracker'), $company),
+            $co2,
+            'tons'
+        );
+    }
+
+    /**
+     * Display company capacity
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_company_capacity($atts) {
+        $atts = shortcode_atts(array(
+            'company' => ''
+        ), $atts, 'ecopower_tracker_company_capacity');
+
+        $company = sanitize_text_field($atts['company']);
+        if (empty($company)) {
+            return $this->error_message(__('Company name is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_company_capacity_' . md5($company);
+        $capacity = wp_cache_get($cache_key);
+        
+        if (false === $capacity) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $capacity = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity)
+                FROM $table_name
+                WHERE project_company = %s
+            ", $company));
+            
+            wp_cache_set($cache_key, $capacity, '', 3600);
+        }
+
+        return $this->format_output(
+            'company-capacity',
+            /* translators: %s: Company name */
+            sprintf(__('Total Capacity - %s', 'ecopower-tracker'), $company),
+            $capacity,
+            'KWs'
+        );
+    }
+
+    /**
+     * Display location power generation
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_location_power($atts) {
+        $atts = shortcode_atts(array(
+            'location' => ''
+        ), $atts, 'ecopower_tracker_location_power');
+
+        $location = sanitize_text_field($atts['location']);
+        if (empty($location)) {
+            return $this->error_message(__('Location is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_location_power_' . md5($location);
+        $power = wp_cache_get($cache_key);
+        
+        if (false === $power) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE project_location = %s
+            ", $location));
+            
+            wp_cache_set($cache_key, $power, '', 3600);
+        }
+
+        return $this->format_output(
+            'location-power',
+            /* translators: %s: Location name */
+            sprintf(__('Power Generation - %s', 'ecopower-tracker'), $location),
+            $power,
+            'KWh'
+        );
+    }
+
+    /**
+     * Display location CO2 offset
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_location_co2($atts) {
+        $atts = shortcode_atts(array(
+            'location' => ''
+        ), $atts, 'ecopower_tracker_location_co2');
+
+        $location = sanitize_text_field($atts['location']);
+        if (empty($location)) {
+            return $this->error_message(__('Location is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_location_co2_' . md5($location);
+        $co2 = wp_cache_get($cache_key);
+        
+        if (false === $co2) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE project_location = %s
+            ", $location));
+            
+            $co2 = $this->calculate_co2_offset($power);
+            wp_cache_set($cache_key, $co2, '', 3600);
+        }
+
+        return $this->format_output(
+            'location-co2',
+            /* translators: %s: Location name */
+            sprintf(__('CO2 Offset - %s', 'ecopower-tracker'), $location),
+            $co2,
+            'tons'
+        );
+    }
+
+    /**
+     * Display location capacity
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_location_capacity($atts) {
+        $atts = shortcode_atts(array(
+            'location' => ''
+        ), $atts, 'ecopower_tracker_location_capacity');
+
+        $location = sanitize_text_field($atts['location']);
+        if (empty($location)) {
+            return $this->error_message(__('Location is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_location_capacity_' . md5($location);
+        $capacity = wp_cache_get($cache_key);
+        
+        if (false === $capacity) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $capacity = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity)
+                FROM $table_name
+                WHERE project_location = %s
+            ", $location));
+            
+            wp_cache_set($cache_key, $capacity, '', 3600);
+        }
+
+        return $this->format_output(
+            'location-capacity',
+            /* translators: %s: Location name */
+            sprintf(__('Total Capacity - %s', 'ecopower-tracker'), $location),
+            $capacity,
+            'KWs'
+        );
+    }
+
+    /**
+     * Display type power generation
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_type_power($atts) {
+        $atts = shortcode_atts(array(
+            'type' => ''
+        ), $atts, 'ecopower_tracker_type_power');
+
+        $type = sanitize_text_field($atts['type']);
+        if (empty($type)) {
+            return $this->error_message(__('Plant type is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_type_power_' . md5($type);
+        $power = wp_cache_get($cache_key);
+        
+        if (false === $power) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE type_of_plant = %s
+            ", $type));
+            
+            wp_cache_set($cache_key, $power, '', 3600);
+        }
+
+        return $this->format_output(
+            'type-power',
+            /* translators: %s: Plant type */
+            sprintf(__('Power Generation - %s', 'ecopower-tracker'), $type),
+            $power,
+            'KWh'
+        );
+    }
+
+    /**
+     * Display type CO2 offset
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_type_co2($atts) {
+        $atts = shortcode_atts(array(
+            'type' => ''
+        ), $atts, 'ecopower_tracker_type_co2');
+
+        $type = sanitize_text_field($atts['type']);
+        if (empty($type)) {
+            return $this->error_message(__('Plant type is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_type_co2_' . md5($type);
+        $co2 = wp_cache_get($cache_key);
+        
+        if (false === $co2) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $power = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity * project_cuf / 100)
+                FROM $table_name
+                WHERE type_of_plant = %s
+            ", $type));
+            
+            $co2 = $this->calculate_co2_offset($power);
+            wp_cache_set($cache_key, $co2, '', 3600);
+        }
+
+        return $this->format_output(
+            'type-co2',
+            /* translators: %s: Plant type */
+            sprintf(__('CO2 Offset - %s', 'ecopower-tracker'), $type),
+            $co2,
+            'tons'
+        );
+    }
+
+    /**
+     * Display type capacity
+     *
+     * @param array $atts Shortcode attributes
+     * @return string
+     */
+    public function display_type_capacity($atts) {
+        $atts = shortcode_atts(array(
+            'type' => ''
+        ), $atts, 'ecopower_tracker_type_capacity');
+
+        $type = sanitize_text_field($atts['type']);
+        if (empty($type)) {
+            return $this->error_message(__('Plant type is required', 'ecopower-tracker'));
+        }
+
+        $cache_key = 'ecopower_tracker_type_capacity_' . md5($type);
+        $capacity = wp_cache_get($cache_key);
+        
+        if (false === $capacity) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
+            $capacity = $wpdb->get_var($wpdb->prepare("
+                SELECT SUM(generation_capacity)
+                FROM $table_name
+                WHERE type_of_plant = %s
+            ", $type));
+            
+            wp_cache_set($cache_key, $capacity, '', 3600);
+        }
+
+        return $this->format_output(
+            'type-capacity',
+            /* translators: %s: Plant type */
+            sprintf(__('Total Capacity - %s', 'ecopower-tracker'), $type),
+            $capacity,
+            'KWs'
+        );
+    }
 
     /**
      * Calculate CO2 offset from power generated
@@ -205,3 +653,6 @@ class EcoPower_Tracker_Shortcodes {
         );
     }
 }
+
+// Initialize the shortcode functionalities
+new EcoPower_Tracker_Shortcodes();

@@ -74,7 +74,7 @@ class EcoPower_Tracker_CSV_Export {
             // Get and write project data
             global $wpdb;
             $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-            $projects = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id ASC", ARRAY_A);
+            $projects = $wpdb->get_results($wpdb->prepare("SELECT * FROM %1s ORDER BY id ASC", $table_name), ARRAY_A);
 
             if ($projects) {
                 foreach ($projects as $project) {

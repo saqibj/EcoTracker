@@ -1,6 +1,6 @@
 # EcoPower Tracker
 
-**Version**: 2.1.0  
+**Version**: 2.2.0  
 **Author**: Saqib Jawaid  
 **License**: GPL v3
 
@@ -85,7 +85,28 @@ For support and to report issues, visit our [GitHub page](https://github.com/saq
 
 ## Changelog
 
-### 2.1.0
+### 2.2.0 - 2025-08-21
+#### Added
+- Frontend shortcodes for project display
+- AJAX-powered project filtering and pagination
+- Responsive project grid and single project views
+- Statistics dashboard with visual charts
+- Sample CSV import/export functionality
+- Comprehensive documentation for all shortcodes
+
+#### Changed
+- Improved database queries for better performance
+- Enhanced security with nonce verification
+- Updated admin interface for better usability
+- Optimized asset loading with proper versioning
+
+#### Fixed
+- Fixed issues with CSV import/export
+- Resolved compatibility with WordPress 6.5+
+- Fixed responsive layout issues on mobile devices
+- Addressed minor UI/UX bugs
+
+### 2.1.0 - 2025-02-09
 - Full compliance with WordPress best practices
 - Added translators comments for all placeholder strings
 - Refactored session usage to user meta for CSV processing

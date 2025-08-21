@@ -1,0 +1,62 @@
+<context>
+# Overview
+EcoPower Tracker is a WordPress plugin designed to track and display renewable energy project data, including power generation and CO2 offset calculations. It helps organizations manage and showcase their renewable energy projects with detailed metrics and visualizations.
+
+# Core Features
+- **Project Management**: Track renewable energy projects with details like project number, company, location, and plant type.
+- **Power Generation Tracking**: Monitor generation capacity and capacity utilization factor (CUF).
+- **CO2 Offset Calculation**: Automatically calculate CO2 offset based on power generation data.
+- **Data Import/Export**: Support for CSV import/export of project data.
+- **Admin Dashboard**: Comprehensive interface for managing projects and viewing analytics.
+- **Frontend Display**: Shortcodes to display project data on the frontend.
+
+# User Experience
+- **Admin Users**: Can manage projects, import/export data, and view analytics.
+- **Website Visitors**: Can view project information and environmental impact through frontend displays.
+</context>
+
+<PRD>
+# Technical Architecture
+- **Backend**: PHP 7.4+, WordPress 5.0+
+- **Database**: Custom table `wp_ecopower_tracker_projects`
+- **Frontend**: jQuery, responsive design
+- **Security**: Nonce verification, input sanitization, capability checks
+
+# Development Roadmap
+## Phase 1: Core Functionality
+- Project CRUD operations
+- Basic data validation
+- Database schema implementation
+
+## Phase 2: Data Management
+- CSV import/export
+- Data validation and sanitization
+- Bulk operations
+
+## Phase 3: Frontend & Visualization
+- Shortcode implementation
+- Data visualization
+- Responsive design
+
+## Phase 4: Advanced Features
+- User roles and capabilities
+- Advanced filtering and search
+- API endpoints
+
+# Logical Dependency Chain
+1. Database schema and basic CRUD operations
+2. Admin interface for project management
+3. Data import/export functionality
+4. Frontend display components
+5. Advanced features and optimizations
+
+# Risks and Mitigations
+- **Data Validation**: Implement strict input validation and sanitization
+- **Performance**: Optimize database queries and implement caching
+- **Security**: Follow WordPress security best practices and regular audits
+
+# Appendix
+- Uses WordPress coding standards
+- Implements proper internationalization
+- Follows WordPress plugin development best practices
+</PRD>

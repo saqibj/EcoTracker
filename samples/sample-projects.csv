@@ -1,0 +1,6 @@
+project_number,project_company,project_name,project_location,type_of_plant,project_cuf,generation_capacity,date_of_activation
+PROJ-001,Green Energy Inc.,Sunny Valley Solar Farm,California, USA,solar,25.5,50.25,2023-01-15
+PROJ-002,Wind Power Co.,Mountain Wind Farm,Colorado, USA,wind,35.2,100.75,2023-02-20
+PROJ-003,Hydro Solutions,Lakeview Hydro Plant,Oregon, USA,hydro,45.0,250.00,2023-03-10
+PROJ-004,Biomass Energy,Forest Biomass Plant,Washington, USA,biomass,30.8,75.50,2023-04-05
+PROJ-005,Geothermal Power,Volcano Energy Project,Hawaii, USA,geothermal,42.3,150.00,2023-05-12

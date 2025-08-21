@@ -303,3 +303,134 @@
     });
 
 })(jQuery);
+
+/**
+ * EcoPower Tracker Admin JavaScript
+ */
+(function($) {
+    'use strict';
+
+    // Document ready
+    $(function() {
+        // Initialize datepicker
+        $('.datepicker').datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            yearRange: '2000:2030',
+            showButtonPanel: true,
+            showAnim: 'fadeIn'
+        });
+
+        // Handle delete confirmation
+        $('.ecopower-tracker-admin').on('click', '.button-link-delete', function(e) {
+            if (!confirm(ecoPowerTracker.strings.confirmDelete)) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+
+        // Form validation
+        $('form.ecopower-tracker-form').on('submit', function(e) {
+            var isValid = true;
+            var $form = $(this);
+            
+            // Check required fields
+            $form.find('[required]').each(function() {
+                var $field = $(this);
+                if (!$field.val().trim()) {
+                    $field.addClass('error');
+                    isValid = false;
+                    
+                    // Add error message if not exists
+                    if (!$field.next('.error-message').length) {
+                        $field.after('<span class="error-message" style="color:#dc3232;display:block;margin:5px 0 0;">' + ecoPowerTracker.strings.requiredField + '</span>');
+                    }
+                } else {
+                    $field.removeClass('error');
+                    $field.next('.error-message').remove();
+                }
+            });
+
+            // Validate number fields
+            $form.find('input[type="number"]').each(function() {
+                var $field = $(this);
+                var min = parseFloat($field.attr('min'));
+                var max = parseFloat($field.attr('max'));
+                var value = parseFloat($field.val());
+                
+                if (!isNaN(min) && value < min) {
+                    $field.addClass('error');
+                    isValid = false;
+                    $field.next('.error-message').remove();
+                    $field.after('<span class="error-message" style="color:#dc3232;display:block;margin:5px 0 0;">' + 
+                        ecoPowerTracker.strings.minValue.replace('%s', min) + '</span>');
+                } else if (!isNaN(max) && value > max) {
+                    $field.addClass('error');
+                    isValid = false;
+                    $field.next('.error-message').remove();
+                    $field.after('<span class="error-message" style="color:#dc3232;display:block;margin:5px 0 0;">' + 
+                        ecoPowerTracker.strings.maxValue.replace('%s', max) + '</span>');
+                } else {
+                    $field.removeClass('error');
+                    $field.next('.error-message').remove();
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                var $firstError = $('.error').first();
+                if ($firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: $firstError.offset().top - 100
+                    }, 500);
+                }
+                
+                return false;
+            }
+            
+            return true;
+        });
+
+        // Remove error class on input
+        $('form.ecopower-tracker-form').on('input', '[required]', function() {
+            var $field = $(this);
+            if ($field.val().trim()) {
+                $field.removeClass('error');
+                $field.next('.error-message').remove();
+            }
+        });
+    });
+
+    // Add custom datepicker styling
+    $.datepicker.regional[''] = {
+        closeText: 'Close',
+        prevText: 'Prev',
+        nextText: 'Next',
+        currentText: 'Today',
+        monthNames: [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ],
+        monthNamesShort: [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ],
+        dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        dayNamesMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        weekHeader: 'Wk',
+        dateFormat: 'yy-mm-dd',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''
+    };
+
+    // Set default datepicker options
+    $.datepicker.setDefaults($.datepicker.regional['']);
+
+})(jQuery);

@@ -3,7 +3,7 @@
  * Plugin Name: EcoPower Tracker
  * Plugin URI: https://github.com/saqibj/EcoTracker
  * Description: Track and display renewable energy project data including power generation and CO2 offset calculations.
- * Version: 2.1.0
+ * Version: 2.2.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Saqib Jawaid
@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ECOPOWER_TRACKER_VERSION', '2.1.0');
+define('ECOPOWER_TRACKER_VERSION', '2.2.0');
 define('ECOPOWER_TRACKER_PATH', plugin_dir_path(__FILE__));
 define('ECOPOWER_TRACKER_URL', plugin_dir_url(__FILE__));
 
@@ -80,6 +80,8 @@ foreach ($required_files as $file) {
  */
 class EcoPowerTracker {
     private static $instance = null;
+    private $plugin_name;
+    private $version;
     
     /**
      * Get singleton instance
@@ -95,6 +97,9 @@ class EcoPowerTracker {
      * Constructor
      */
     private function __construct() {
+        $this->plugin_name = 'ecopower-tracker';
+        $this->version = ECOPOWER_TRACKER_VERSION;
+        
         // Check WordPress version
         if (version_compare($GLOBALS['wp_version'], '5.0', '<')) {
             add_action('admin_notices', array($this, 'display_version_notice'));
@@ -116,6 +121,27 @@ class EcoPowerTracker {
     private function init_hooks() {
         add_action('admin_menu', array($this, 'add_admin_menus'));
         add_action('init', array($this, 'load_textdomain'));
+        $this->define_public_hooks();
+    }
+
+    /**
+     * Register all of the hooks related to the public-facing functionality
+     * of the plugin.
+     */
+    private function define_public_hooks() {
+        $plugin_public = new EcoPowerTracker_Public($this->get_plugin_name(), $this->get_version());
+
+        add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_styles'));
+        add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_scripts'));
+        
+        // Register shortcodes
+        add_shortcode('ecopower_projects', array($plugin_public, 'render_projects_shortcode'));
+        add_shortcode('ecopower_project', array($plugin_public, 'render_single_project_shortcode'));
+        add_shortcode('ecopower_stats', array($plugin_public, 'render_stats_shortcode'));
+        
+        // AJAX handlers
+        add_action('wp_ajax_ecopower_tracker_filter_projects', array($plugin_public, 'ajax_filter_projects'));
+        add_action('wp_ajax_nopriv_ecopower_tracker_filter_projects', array($plugin_public, 'ajax_filter_projects'));
     }
 
     /**
@@ -214,6 +240,21 @@ class EcoPowerTracker {
             '7.4'
         );
         echo '<div class="error"><p>' . esc_html($message) . '</p></div>';
+    }
+
+    /**
+     * The name of the plugin used to uniquely identify it within the context of
+     * WordPress and to define internationalization functionality.
+     */
+    public function get_plugin_name() {
+        return $this->plugin_name;
+    }
+
+    /**
+     * Retrieve the version number of the plugin.
+     */
+    public function get_version() {
+        return $this->version;
     }
 }
 

@@ -145,7 +145,7 @@ class EcoPower_Tracker_Dashboard {
     private function get_total_projects() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-        return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+        return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %1s", $table_name));
     }
 
     /**
@@ -156,7 +156,7 @@ class EcoPower_Tracker_Dashboard {
     private function get_total_capacity() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-        return (float) $wpdb->get_var("SELECT SUM(generation_capacity) FROM $table_name");
+        return (float) $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM %1s", $table_name));
     }
 
     /**
@@ -168,14 +168,14 @@ class EcoPower_Tracker_Dashboard {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
         
-        $stats = $wpdb->get_results("
+        $stats = $wpdb->get_results($wpdb->prepare("
             SELECT 
                 type_of_plant,
                 COUNT(*) as count,
                 SUM(generation_capacity) as total_capacity
-            FROM $table_name
+            FROM %1s
             GROUP BY type_of_plant
-        ");
+        ", $table_name));
 
         return array_map(function($stat) {
             return array(

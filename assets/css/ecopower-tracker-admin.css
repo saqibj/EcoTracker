@@ -3,6 +3,11 @@
  * Version: 2.0.1
  */
 
+/* Main Admin Container */
+.ecopower-tracker-admin {
+    margin-top: 20px;
+}
+
 /* Dashboard Layout */
 .ecopower-tracker-admin {
     margin: 20px 0;
@@ -42,6 +47,19 @@
 }
 
 /* Tables */
+.ecopower-tracker-admin table.wp-list-table {
+    margin-top: 15px;
+}
+
+.ecopower-tracker-admin table.form-table {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-top: 20px;
+    max-width: 900px;
+}
+
 .ecopower-tracker-admin table {
     border-collapse: collapse;
     width: 100%;
@@ -59,6 +77,117 @@
     padding: 12px;
     border-bottom: 1px solid #dee2e6;
     vertical-align: middle;
+}
+
+/* Form Elements */
+.ecopower-tracker-admin input[type="text"],
+.ecopower-tracker-admin input[type="number"],
+.ecopower-tracker-admin select,
+.ecopower-tracker-admin textarea {
+    width: 100%;
+    max-width: 400px;
+}
+
+.ecopower-tracker-admin input.small-text {
+    width: 100px;
+}
+
+.ecopower-tracker-admin .datepicker {
+    width: 150px;
+}
+
+/* Required Field Indicator */
+.ecopower-tracker-admin .required {
+    color: #dc3232;
+}
+
+/* Buttons */
+.ecopower-tracker-admin .button-link-delete {
+    color: #a00;
+    text-decoration: none;
+    border: 1px solid #dc8484;
+    padding: 0 10px 1px;
+    cursor: pointer;
+    border-radius: 3px;
+    line-height: 2.15384615;
+}
+
+.ecopower-tracker-admin .button-link-delete:hover {
+    background: #f3e6e6;
+    border-color: #a00;
+}
+
+/* Responsive Tables */
+@media screen and (max-width: 782px) {
+    .ecopower-tracker-admin .wp-list-table tr:not(.inline-edit-row):not(.no-items) td:not(.check-column) {
+        display: table-cell;
+        padding: 10px;
+    }
+    
+    .ecopower-tracker-admin .wp-list-table tr:not(.inline-edit-row) td.column-primary ~ td:not(.check-column) {
+        display: table-cell;
+    }
+    
+    .ecopower-tracker-admin .wp-list-table td.column-title {
+        font-weight: 600;
+    }
+}
+
+/* Form Layout */
+.ecopower-tracker-admin .form-table th {
+    width: 200px;
+    padding: 20px 10px 20px 0;
+}
+
+.ecopower-tracker-admin .form-table td {
+    padding: 15px 10px;
+}
+
+.ecopower-tracker-admin .form-table tr:not(:first-child) {
+    border-top: 1px solid #f0f0f1;
+}
+
+/* Spacing */
+.ecopower-tracker-admin .submit {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+/* Notices */
+.ecopower-tracker-admin .notice {
+    margin: 5px 0 15px;
+}
+
+/* Action Buttons */
+.row-actions {
+    visibility: hidden;
+    font-size: 13px;
+}
+
+tr:hover .row-actions {
+    visibility: visible;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 782px) {
+    .ecopower-tracker-admin .form-table th {
+        width: 100%;
+        display: block;
+        padding: 10px 0 5px;
+    }
+    
+    .ecopower-tracker-admin .form-table td {
+        display: block;
+        padding: 0 0 15px;
+    }
+    
+    .ecopower-tracker-admin input[type="text"],
+    .ecopower-tracker-admin input[type="number"],
+    .ecopower-tracker-admin select,
+    .ecopower-tracker-admin textarea {
+        max-width: 100%;
+    }
 }
 
 /* Forms */
