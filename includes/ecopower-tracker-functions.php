@@ -2,14 +2,14 @@
 // File: ecopower-tracker-functions.php
 
 <?php
+namespace EcoPowerTracker;
+
 /**
  * Core functions for EcoPower Tracker
  *
  * @package EcoPowerTracker
  * @since 2.0.1
  */
-
-namespace EcoPowerTracker;
 
 if (!defined('ABSPATH')) {
     exit;

@@ -1,6 +1,3 @@
-// Path: EcoPower-Tracker/includes/class-ecopower-tracker-utils.php
-// File: class-ecopower-tracker-utils.php
-
 <?php
 /**
  * Utility functions for EcoPower Tracker

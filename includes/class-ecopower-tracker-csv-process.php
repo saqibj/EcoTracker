@@ -1,6 +1,3 @@
-// Path: EcoPower-Tracker/includes/class-ecopower-tracker-csv-process.php
-// File: class-ecopower-tracker-csv-process.php
-
 <?php
 /**
  * CSV Processing functionality

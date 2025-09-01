@@ -1,6 +1,3 @@
-// Path: EcoPower-Tracker/includes/class-ecopower-tracker-csv-upload.php
-// File: class-ecopower-tracker-csv-upload.php
-
 <?php
 /**
  * CSV Upload functionality
