@@ -198,10 +198,12 @@ class EcoPower_Tracker_Admin {
             return;
         }
 
+        $suffix = $this->get_asset_suffix();
+
         // Enqueue admin styles
         wp_enqueue_style(
             'ecopower-tracker-admin-css',
-            ECOPOWER_TRACKER_URL . 'assets/css/ecopower-tracker-admin.css',
+            ECOPOWER_TRACKER_URL . "assets/css/ecopower-tracker-admin{$suffix}.css",
             array(),
             ECOPOWER_TRACKER_VERSION,
             'all'
@@ -214,21 +216,37 @@ class EcoPower_Tracker_Admin {
         // Enqueue admin scripts
         wp_enqueue_script(
             'ecopower-tracker-admin-js',
-            ECOPOWER_TRACKER_URL . 'assets/js/ecopower-tracker-admin.js',
+            ECOPOWER_TRACKER_URL . "assets/js/ecopower-tracker-admin{$suffix}.js",
             array('jquery', 'jquery-ui-datepicker'),
             ECOPOWER_TRACKER_VERSION,
             true
         );
 
-        // Localize script for translations and variables
-        wp_localize_script('ecopower-tracker-admin-js', 'ecoPowerTracker', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ecopower_tracker_admin_nonce'),
-            'strings' => array(
+        // Localize admin script
+        wp_localize_script(
+            'ecopower-tracker-admin-js',
+            'ecoPowerTrackerAdmin',
+            array(
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('ecopower_tracker_admin'),
                 'confirmDelete' => __('Are you sure you want to delete this project?', 'ecopower-tracker'),
-                'error' => __('An error occurred', 'ecopower-tracker')
+                'confirmBulkDelete' => __('Are you sure you want to delete the selected projects?', 'ecopower-tracker'),
+                'i18n' => array(
+                    'error' => __('An error occurred', 'ecopower-tracker'),
+                    'success' => __('Operation completed successfully', 'ecopower-tracker'),
+                    'loading' => __('Loading...', 'ecopower-tracker')
+                )
             )
-        ));
+        );
+    }
+
+    /**
+     * Get asset suffix for minified files
+     *
+     * @return string
+     */
+    private function get_asset_suffix() {
+        return (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
     }
 }
 

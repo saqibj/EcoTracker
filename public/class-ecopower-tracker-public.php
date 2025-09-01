@@ -19,16 +19,18 @@ class EcoPower_Tracker_Public {
      */
     public function __construct($plugin_name, $version) {
         $this->plugin_name = $plugin_name;
-        $this->version = '1.0.0'; // Update the version to match the current plugin version
+        $this->version = $version; // Use the passed version parameter instead of hardcoded value
     }
 
     /**
      * Register the stylesheets for the public-facing side of the site.
      */
     public function enqueue_styles() {
+        $suffix = $this->get_asset_suffix();
+        
         wp_register_style(
             $this->plugin_name . '-frontend',
-            plugin_dir_url(__FILE__) . '../assets/css/ecopower-tracker-frontend.css',
+            plugin_dir_url(__FILE__) . "../assets/css/ecopower-tracker-frontend{$suffix}.css",
             array(),
             $this->version,
             'all'
@@ -39,9 +41,11 @@ class EcoPower_Tracker_Public {
      * Register the JavaScript for the public-facing side of the site.
      */
     public function enqueue_scripts() {
+        $suffix = $this->get_asset_suffix();
+        
         wp_register_script(
             $this->plugin_name . '-frontend',
-            plugin_dir_url(__FILE__) . '../assets/js/ecopower-tracker-frontend.js',
+            plugin_dir_url(__FILE__) . "../assets/js/ecopower-tracker-frontend{$suffix}.js",
             array('jquery'),
             $this->version,
             true
@@ -56,6 +60,15 @@ class EcoPower_Tracker_Public {
                 'nonce' => wp_create_nonce('ecopower_tracker_nonce')
             )
         );
+    }
+
+    /**
+     * Get asset suffix for minified files
+     *
+     * @return string
+     */
+    private function get_asset_suffix() {
+        return (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
     }
 
     /**

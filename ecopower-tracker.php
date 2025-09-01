@@ -222,8 +222,8 @@ class EcoPowerTracker {
      * Display WordPress version notice
      */
     public function display_version_notice() {
-        /* translators: %s: WordPress version */
         $message = sprintf(
+            /* translators: %s: WordPress version */
             __('EcoPower Tracker requires WordPress version %s or higher.', 'ecopower-tracker'),
             '5.0'
         );
@@ -234,8 +234,8 @@ class EcoPowerTracker {
      * Display PHP version notice
      */
     public function display_php_version_notice() {
-        /* translators: %s: PHP version */
         $message = sprintf(
+            /* translators: %s: PHP version */
             __('EcoPower Tracker requires PHP version %s or higher.', 'ecopower-tracker'),
             '7.4'
         );

@@ -52,7 +52,7 @@ function ecopower_tracker_create_tables() {
 }
 
 /**
- * Enqueue frontend assets
+ * Enqueue frontend assets with fallback support
  *
  * @return void
  */
@@ -62,21 +62,21 @@ function ecopower_tracker_enqueue_frontend_assets() {
         return;
     }
 
-    $suffix = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
+    $suffix = ecopower_tracker_get_asset_suffix();
 
-    wp_enqueue_style(
+    // Enqueue CSS with fallback
+    ecopower_tracker_enqueue_style_with_fallback(
         'ecopower-tracker-frontend',
-        ECOPOWER_TRACKER_URL . "assets/css/ecopower-tracker-frontend{$suffix}.css",
-        array(),
-        ECOPOWER_TRACKER_VERSION
+        "assets/css/ecopower-tracker-frontend{$suffix}.css",
+        'assets/css/ecopower-tracker-frontend.css'
     );
 
-    wp_enqueue_script(
+    // Enqueue JS with fallback
+    ecopower_tracker_enqueue_script_with_fallback(
         'ecopower-tracker-frontend',
-        ECOPOWER_TRACKER_URL . "assets/js/ecopower-tracker-frontend{$suffix}.js",
-        array('jquery'),
-        ECOPOWER_TRACKER_VERSION,
-        true
+        "assets/js/ecopower-tracker-frontend{$suffix}.js",
+        'assets/js/ecopower-tracker-frontend.js',
+        array('jquery')
     );
 
     wp_localize_script(
@@ -93,6 +93,59 @@ function ecopower_tracker_enqueue_frontend_assets() {
                 'loading' => __('Loading...', 'ecopower-tracker')
             )
         )
+    );
+}
+
+/**
+ * Get asset suffix for minified files
+ *
+ * @return string
+ */
+function ecopower_tracker_get_asset_suffix() {
+    return (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
+}
+
+/**
+ * Enqueue stylesheet with fallback to non-minified version
+ *
+ * @param string $handle
+ * @param string $src_minified
+ * @param string $src_fallback
+ * @param array $deps
+ * @param string $media
+ */
+function ecopower_tracker_enqueue_style_with_fallback($handle, $src_minified, $src_fallback, $deps = array(), $media = 'all') {
+    $minified_path = ECOPOWER_TRACKER_PATH . $src_minified;
+    $src = file_exists($minified_path) ? $src_minified : $src_fallback;
+    
+    wp_enqueue_style(
+        $handle,
+        ECOPOWER_TRACKER_URL . $src,
+        $deps,
+        ECOPOWER_TRACKER_VERSION,
+        $media
+    );
+}
+
+/**
+ * Enqueue script with fallback to non-minified version
+ *
+ * @param string $handle
+ * @param string $src_minified
+ * @param string $src_fallback
+ * @param array $deps
+ * @param bool $in_footer
+ */
+function ecopower_tracker_enqueue_script_with_fallback($handle, $src_minified, $src_fallback, $deps = array(), $in_footer = true) {
+    $minified_path = ECOPOWER_TRACKER_PATH . $src_minified;
+    $src = file_exists($minified_path) ? $src_minified : $src_fallback;
+    
+    wp_enqueue_script(
+        $handle,
+        ECOPOWER_TRACKER_URL . $src,
+        $deps,
+        ECOPOWER_TRACKER_VERSION,
+        $in_footer
     );
 }
 

@@ -53,6 +53,7 @@ wp_enqueue_style('ecopower-tracker-frontend');
     <div class="ecopower-stats-updated">
         <?php 
         printf(
+            /* translators: %s: Last update date and time */
             esc_html__('Last updated: %s', 'ecopower-tracker'),
             '<time datetime="' . esc_attr(current_time('c')) . '">' . esc_html(current_time(get_option('date_format'))) . '</time>'
         );

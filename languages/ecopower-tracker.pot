@@ -2,22 +2,24 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: EcoPower Tracker 2.1.0\n"
+"Project-Id-Version: EcoPower Tracker 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/EcoTracker\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-06-16T12:01:11+00:00\n"
+"POT-Creation-Date: 2025-08-25T07:51:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ecopower-tracker\n"
 
 #. Plugin Name of the plugin
 #: ecopower-tracker.php
-#: ecopower-tracker.php:138
-#: ecopower-tracker.php:139
+#: ecopower-tracker.php:164
+#: ecopower-tracker.php:165
+#: includes/class-ecopower-tracker-admin.php:50
+#: includes/class-ecopower-tracker-admin.php:51
 #: includes/class-ecopower-tracker-dashboard.php:38
 #: includes/class-ecopower-tracker-dashboard.php:39
 msgid "EcoPower Tracker"
@@ -50,155 +52,357 @@ msgstr ""
 msgid "Required file missing: %s"
 msgstr ""
 
-#: ecopower-tracker.php:150
-#: ecopower-tracker.php:151
+#: ecopower-tracker.php:176
+#: ecopower-tracker.php:177
 #: includes/class-ecopower-tracker-dashboard.php:49
 #: includes/class-ecopower-tracker-dashboard.php:50
 msgid "Dashboard"
 msgstr ""
 
-#: ecopower-tracker.php:160
+#: ecopower-tracker.php:186
 #: templates/admin/about.php:20
 msgid "About EcoPower Tracker"
 msgstr ""
 
-#: ecopower-tracker.php:161
+#: ecopower-tracker.php:187
 msgid "About"
 msgstr ""
 
-#: ecopower-tracker.php:173
-#: ecopower-tracker.php:189
+#: ecopower-tracker.php:199
+#: ecopower-tracker.php:215
+#: includes/class-ecopower-tracker-admin.php:88
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: ecopower-tracker.php:201
+#: ecopower-tracker.php:227
 #, php-format
 msgid "EcoPower Tracker requires WordPress version %s or higher."
 msgstr ""
 
-#: ecopower-tracker.php:213
+#: ecopower-tracker.php:239
 #, php-format
 msgid "EcoPower Tracker requires PHP version %s or higher."
 msgstr ""
 
-#: includes/class-ecopower-tracker-admin.php:53
+#: includes/class-ecopower-tracker-admin.php:62
+#: includes/class-ecopower-tracker-admin.php:63
+msgid "All Projects"
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:71
+#: templates/admin/dashboard.php:29
+#: templates/admin/project-form.php:8
+msgid "Add New Project"
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:72
+#: templates/admin/project-list.php:18
+msgid "Add New"
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:172
+msgid "Project added successfully."
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:173
+msgid "Project updated successfully."
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:174
+#: includes/class-ecopower-tracker-dashboard.php:91
+msgid "Project deleted successfully."
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:232
+#: templates/admin/dashboard.php:110
+msgid "Are you sure you want to delete this project?"
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:233
+msgid "Are you sure you want to delete the selected projects?"
+msgstr ""
+
+#: includes/class-ecopower-tracker-admin.php:235
 msgid "An error occurred"
 msgstr ""
 
-#: includes/class-ecopower-tracker-admin.php:63
-#: includes/class-ecopower-tracker-csv-export.php:64
-#: templates/admin/dashboard.php:82
-#: templates/frontend/display-project-data.php:30
-msgid "Project Number"
+#: includes/class-ecopower-tracker-admin.php:236
+msgid "Operation completed successfully"
 msgstr ""
 
-#: includes/class-ecopower-tracker-admin.php:64
-#: includes/class-ecopower-tracker-csv-export.php:65
-msgid "Project Company"
+#: includes/class-ecopower-tracker-admin.php:237
+#: includes/ecopower-tracker-functions.php:93
+#: templates/frontend/display-project-data.php:142
+msgid "Loading..."
 msgstr ""
 
-#: includes/class-ecopower-tracker-admin.php:65
-#: includes/class-ecopower-tracker-csv-export.php:66
-#: templates/admin/dashboard.php:83
-#: templates/frontend/display-project-data.php:31
-msgid "Project Name"
-msgstr ""
-
-#: includes/class-ecopower-tracker-admin.php:66
-#: includes/class-ecopower-tracker-csv-export.php:67
-msgid "Project Location"
-msgstr ""
-
-#: includes/class-ecopower-tracker-admin.php:67
-#: includes/class-ecopower-tracker-csv-export.php:68
-msgid "Type of Plant"
-msgstr ""
-
-#: includes/class-ecopower-tracker-admin.php:68
-msgid "Generation Capacity"
-msgstr ""
-
-#: includes/class-ecopower-tracker-csv-export.php:39
-#: includes/class-ecopower-tracker-csv-process.php:55
-#: includes/class-ecopower-tracker-csv-upload.php:53
+#: includes/class-ecopower-tracker-csv-export.php:76
+#: includes/class-ecopower-tracker-csv-process.php:131
+#: includes/class-ecopower-tracker-csv-upload.php:95
 #: includes/class-ecopower-tracker-dashboard.php:116
 msgid "Unauthorized access"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:45
-#: includes/class-ecopower-tracker-csv-process.php:61
-#: includes/class-ecopower-tracker-csv-upload.php:59
+#: includes/class-ecopower-tracker-csv-export.php:87
+#: includes/class-ecopower-tracker-csv-process.php:142
+#: includes/class-ecopower-tracker-csv-upload.php:106
 msgid "Security check failed"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:56
+#: includes/class-ecopower-tracker-csv-export.php:96
+msgid "Failed to count projects for export"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:100
+msgid "No projects found to export"
+msgstr ""
+
+#. translators: 1: Number of projects to export, 2: Maximum allowed projects
+#: includes/class-ecopower-tracker-csv-export.php:106
+#, php-format
+msgid "Too many projects to export (%1$d). Maximum allowed: %2$d. Please contact administrator."
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:135
 msgid "Failed to create output stream"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:69
-msgid "Project CUF"
+#: includes/class-ecopower-tracker-csv-export.php:143
+#: templates/admin/dashboard.php:82
+#: templates/admin/project-form.php:25
+#: templates/admin/project-list.php:27
+#: templates/frontend/display-project-data.php:30
+msgid "Project Number"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:70
-msgid "Generation Capacity (KWs)"
+#: includes/class-ecopower-tracker-csv-export.php:144
+msgid "Project Company"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:71
+#: includes/class-ecopower-tracker-csv-export.php:145
+#: templates/admin/dashboard.php:83
+#: templates/admin/project-form.php:46
+#: templates/admin/project-list.php:29
+#: templates/frontend/display-project-data.php:31
+#: templates/frontend/projects-grid.php:31
+msgid "Project Name"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:146
+msgid "Project Location"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:147
+#: templates/admin/project-form.php:66
+msgid "Type of Plant"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:148
+msgid "Project CUF (%)"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:149
+msgid "Generation Capacity (KW)"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:150
+#: templates/admin/project-form.php:104
 msgid "Date of Activation"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:93
-msgid "An error occurred during export. Please try again."
+#: includes/class-ecopower-tracker-csv-export.php:154
+msgid "Failed to write CSV headers"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-export.php:94
+#: includes/class-ecopower-tracker-csv-export.php:169
+msgid "Database error during export: "
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:182
+msgid "Failed to write project data"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:256
+msgid "Try exporting fewer records if you have a large dataset"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:257
+msgid "Check that you have sufficient server resources"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:258
+msgid "Contact administrator if the problem persists"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-export.php:264
 msgid "Export Error"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:68
+#: includes/class-ecopower-tracker-csv-process.php:149
 msgid "No CSV file found for processing"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:74
+#: includes/class-ecopower-tracker-csv-process.php:155
 msgid "CSV file not found"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:98
+#: includes/class-ecopower-tracker-csv-process.php:164
+msgid "CSV file has expired. Please upload a new file."
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:230
+msgid "Verify your CSV file format matches the sample"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:231
+msgid "Check that all required fields are present"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:232
+msgid "Ensure data values are within valid ranges"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:233
+msgid "Try uploading a smaller file if the issue persists"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:239
 msgid "Processing Error"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:121
+#: includes/class-ecopower-tracker-csv-process.php:263
 msgid "Failed to open CSV file"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:163
+#: includes/class-ecopower-tracker-csv-process.php:350
+msgid "Too many row errors. Processing stopped."
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:367
+msgid "No valid data rows were found to import"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:390
 msgid "Invalid CSV headers"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:174
+#. translators: %s: List of missing required columns
+#: includes/class-ecopower-tracker-csv-process.php:413
+#: includes/class-ecopower-tracker-csv-upload.php:371
 #, php-format
 msgid "Missing required columns: %s"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-process.php:183
+#: includes/class-ecopower-tracker-csv-process.php:423
+#: includes/class-ecopower-tracker-csv-process.php:425
 msgid "Invalid column name detected"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-upload.php:65
+#. translators: %s: List of duplicate column names
+#: includes/class-ecopower-tracker-csv-process.php:436
+#, php-format
+msgid "Duplicate column names found: %s"
+msgstr ""
+
+#. translators: %s: Name of the missing required column
+#: includes/class-ecopower-tracker-csv-process.php:465
+#, php-format
+msgid "Required column \"%s\" not found in CSV headers"
+msgstr ""
+
+#. translators: 1: CUF percentage value, 2: Plant type, 3: Minimum typical range, 4: Maximum typical range
+#: includes/class-ecopower-tracker-csv-process.php:560
+#, php-format
+msgid "CUF value %1$.2f%% is unusual for %2$s plants (typical range: %3$.1f%% - %4$.1f%%)"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:573
+msgid "Date of activation cannot be in the future"
+msgstr ""
+
+#. translators: %s: Generation capacity value in KW
+#: includes/class-ecopower-tracker-csv-process.php:580
+#, php-format
+msgid "Generation capacity %.2f KW seems unusually high. Please verify."
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-process.php:665
+msgid "Database operation failed"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:112
 #: includes/class-ecopower-tracker-utils.php:191
 msgid "No file uploaded"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-upload.php:72
-msgid "Invalid file type. Please upload a CSV file."
+#: includes/class-ecopower-tracker-csv-upload.php:128
+msgid "Failed to create upload directory"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-upload.php:87
+#: includes/class-ecopower-tracker-csv-upload.php:145
 msgid "Failed to move uploaded file"
 msgstr ""
 
-#: includes/class-ecopower-tracker-csv-upload.php:109
+#: includes/class-ecopower-tracker-csv-upload.php:204
+msgid "Ensure your file is a valid CSV format"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:205
+msgid "Check that your file is not corrupted"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:206
+msgid "Verify the file size is within limits"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:207
+msgid "Make sure the file contains the required columns"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:213
 msgid "Upload Error"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:239
+msgid "File must have a .csv extension"
+msgstr ""
+
+#. translators: 1: Actual file size, 2: Maximum allowed file size
+#: includes/class-ecopower-tracker-csv-upload.php:247
+#, php-format
+msgid "File size (%1$s) exceeds maximum allowed size (%2$s)"
+msgstr ""
+
+#. translators: %s: Detected file MIME type
+#: includes/class-ecopower-tracker-csv-upload.php:259
+#, php-format
+msgid "Invalid file type (%s). Please upload a CSV file."
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:289
+msgid "Unable to read file for encoding validation"
+msgstr ""
+
+#. translators: %s: List of supported file encodings
+#: includes/class-ecopower-tracker-csv-upload.php:300
+#, php-format
+msgid "File encoding not supported. Supported encodings: %s"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:323
+msgid "Unable to open CSV file for validation"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:332
+msgid "CSV file is empty"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:341
+msgid "CSV file has no header row"
+msgstr ""
+
+#: includes/class-ecopower-tracker-csv-upload.php:391
+msgid "CSV file contains no data rows"
 msgstr ""
 
 #: includes/class-ecopower-tracker-dashboard.php:85
@@ -209,12 +413,168 @@ msgstr ""
 msgid "Data exported successfully."
 msgstr ""
 
-#: includes/class-ecopower-tracker-dashboard.php:91
-msgid "Project deleted successfully."
-msgstr ""
-
 #: includes/class-ecopower-tracker-dashboard.php:95
 msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:160
+msgid "Suggestions:"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:187
+#, php-format
+msgid "File size (%s) exceeds maximum allowed size (%s)"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:197
+msgid "File name contains invalid characters"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:204
+msgid "File type not allowed for security reasons"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:223
+msgid "File content contains potentially malicious code"
+msgstr ""
+
+#. translators: %s: Name of the required field
+#: includes/class-ecopower-tracker-error-handler.php:253
+#, php-format
+msgid "Field \"%s\" is required"
+msgstr ""
+
+#. translators: 1: Field name, 2: Maximum allowed length
+#: includes/class-ecopower-tracker-error-handler.php:272
+#, php-format
+msgid "Field \"%1$s\" exceeds maximum length of %2$d characters"
+msgstr ""
+
+#. translators: 1: Field name, 2: Minimum required length
+#: includes/class-ecopower-tracker-error-handler.php:281
+#, php-format
+msgid "Field \"%1$s\" must be at least %2$d characters long"
+msgstr ""
+
+#. translators: %s: Name of the field with invalid format
+#: includes/class-ecopower-tracker-error-handler.php:290
+#, php-format
+msgid "Field \"%s\" has invalid format"
+msgstr ""
+
+#. translators: %s: Name of the field that must be numeric
+#: includes/class-ecopower-tracker-error-handler.php:301
+#, php-format
+msgid "Field \"%s\" must be a valid number"
+msgstr ""
+
+#. translators: 1: Field name, 2: Minimum allowed value
+#: includes/class-ecopower-tracker-error-handler.php:310
+#, php-format
+msgid "Field \"%1$s\" must be at least %2$s"
+msgstr ""
+
+#. translators: 1: Field name, 2: Maximum allowed value
+#: includes/class-ecopower-tracker-error-handler.php:319
+#, php-format
+msgid "Field \"%1$s\" must not exceed %2$s"
+msgstr ""
+
+#. translators: %s: Name of the field that must be an integer
+#: includes/class-ecopower-tracker-error-handler.php:331
+#, php-format
+msgid "Field \"%s\" must be a valid integer"
+msgstr ""
+
+#. translators: 1: Field name, 2: Minimum allowed integer value
+#: includes/class-ecopower-tracker-error-handler.php:340
+#, php-format
+msgid "Field \"%1$s\" must be at least %2$d"
+msgstr ""
+
+#. translators: 1: Field name, 2: Maximum allowed integer value
+#: includes/class-ecopower-tracker-error-handler.php:349
+#, php-format
+msgid "Field \"%1$s\" must not exceed %2$d"
+msgstr ""
+
+#. translators: %s: Name of the field that must be a valid date
+#: includes/class-ecopower-tracker-error-handler.php:362
+#, php-format
+msgid "Field \"%s\" must be a valid date"
+msgstr ""
+
+#. translators: 1: Field name, 2: Minimum date value
+#: includes/class-ecopower-tracker-error-handler.php:373
+#, php-format
+msgid "Field \"%1$s\" must be after %2$s"
+msgstr ""
+
+#. translators: 1: Field name, 2: Maximum date value
+#: includes/class-ecopower-tracker-error-handler.php:385
+#, php-format
+msgid "Field \"%1$s\" must be before %2$s"
+msgstr ""
+
+#. translators: 1: Field name, 2: List of allowed values
+#: includes/class-ecopower-tracker-error-handler.php:398
+#, php-format
+msgid "Field \"%1$s\" must be one of: %2$s"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:504
+msgid "The uploaded file exceeds the maximum file size allowed by the server"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:506
+msgid "The uploaded file exceeds the maximum file size allowed by the form"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:508
+msgid "The uploaded file was only partially uploaded"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:510
+msgid "No file was uploaded"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:512
+msgid "Missing temporary folder for file upload"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:514
+msgid "Failed to write file to disk"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:516
+msgid "File upload stopped by extension"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:518
+#: includes/class-ecopower-tracker-utils.php:193
+msgid "Unknown upload error"
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:534
+msgid "The following errors occurred:"
+msgstr ""
+
+#. translators: %d: Line number in CSV file
+#: includes/class-ecopower-tracker-error-handler.php:542
+#, php-format
+msgid "Line %d: "
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:576
+msgid "Memory usage is high. Consider increasing PHP memory limit."
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:583
+msgid "PHP execution time limit may be too low for large imports."
+msgstr ""
+
+#: includes/class-ecopower-tracker-error-handler.php:592
+msgid "Low disk space available for file uploads."
 msgstr ""
 
 #: includes/class-ecopower-tracker-shortcodes.php:85
@@ -226,17 +586,83 @@ msgid "Total CO2 Offset"
 msgstr ""
 
 #: includes/class-ecopower-tracker-shortcodes.php:131
+#: includes/class-ecopower-tracker-shortcodes.php:179
+#: includes/class-ecopower-tracker-shortcodes.php:225
 msgid "Invalid project ID"
 msgstr ""
 
-#: includes/class-ecopower-tracker-shortcodes.php:144
+#: includes/class-ecopower-tracker-shortcodes.php:148
+#: includes/class-ecopower-tracker-shortcodes.php:154
+#: includes/class-ecopower-tracker-shortcodes.php:196
+#: includes/class-ecopower-tracker-shortcodes.php:242
+#: includes/class-ecopower-tracker-shortcodes.php:248
 msgid "Project not found"
 msgstr ""
 
 #. translators: %d: Project ID
-#: includes/class-ecopower-tracker-shortcodes.php:150
+#: includes/class-ecopower-tracker-shortcodes.php:160
 #, php-format
 msgid "Project Power Generation (#%d)"
+msgstr ""
+
+#. translators: %d: Project ID
+#: includes/class-ecopower-tracker-shortcodes.php:206
+#, php-format
+msgid "Project CO2 Offset (#%d)"
+msgstr ""
+
+#. translators: %d: Project ID
+#: includes/class-ecopower-tracker-shortcodes.php:254
+#, php-format
+msgid "Project Capacity (#%d)"
+msgstr ""
+
+#: includes/class-ecopower-tracker-shortcodes.php:273
+#: includes/class-ecopower-tracker-shortcodes.php:314
+#: includes/class-ecopower-tracker-shortcodes.php:356
+msgid "Company name is required"
+msgstr ""
+
+#. translators: %s: Company name
+#. translators: %s: Location name
+#. translators: %s: Plant type
+#: includes/class-ecopower-tracker-shortcodes.php:295
+#: includes/class-ecopower-tracker-shortcodes.php:419
+#: includes/class-ecopower-tracker-shortcodes.php:543
+#, php-format
+msgid "Power Generation - %s"
+msgstr ""
+
+#. translators: %s: Company name
+#. translators: %s: Location name
+#. translators: %s: Plant type
+#: includes/class-ecopower-tracker-shortcodes.php:337
+#: includes/class-ecopower-tracker-shortcodes.php:461
+#: includes/class-ecopower-tracker-shortcodes.php:585
+#, php-format
+msgid "CO2 Offset - %s"
+msgstr ""
+
+#. translators: %s: Company name
+#. translators: %s: Location name
+#. translators: %s: Plant type
+#: includes/class-ecopower-tracker-shortcodes.php:378
+#: includes/class-ecopower-tracker-shortcodes.php:502
+#: includes/class-ecopower-tracker-shortcodes.php:626
+#, php-format
+msgid "Total Capacity - %s"
+msgstr ""
+
+#: includes/class-ecopower-tracker-shortcodes.php:397
+#: includes/class-ecopower-tracker-shortcodes.php:438
+#: includes/class-ecopower-tracker-shortcodes.php:480
+msgid "Location is required"
+msgstr ""
+
+#: includes/class-ecopower-tracker-shortcodes.php:521
+#: includes/class-ecopower-tracker-shortcodes.php:562
+#: includes/class-ecopower-tracker-shortcodes.php:604
+msgid "Plant type is required"
 msgstr ""
 
 #: includes/class-ecopower-tracker-utils.php:165
@@ -267,10 +693,6 @@ msgstr ""
 msgid "File size exceeds limit"
 msgstr ""
 
-#: includes/class-ecopower-tracker-utils.php:193
-msgid "Unknown upload error"
-msgstr ""
-
 #: includes/class-ecopower-tracker-utils.php:198
 msgid "Invalid file type"
 msgstr ""
@@ -279,25 +701,28 @@ msgstr ""
 msgid "Error loading data"
 msgstr ""
 
-#: includes/ecopower-tracker-functions.php:93
-#: templates/frontend/display-project-data.php:142
-msgid "Loading..."
-msgstr ""
-
 #. translators: %s: PHP version
-#: includes/ecopower-tracker-functions.php:152
+#: includes/ecopower-tracker-functions.php:205
 #, php-format
 msgid "EcoPower Tracker requires PHP version 7.4 or higher. You are running version %s."
 msgstr ""
 
 #. translators: %s: WordPress version
-#: includes/ecopower-tracker-functions.php:162
+#: includes/ecopower-tracker-functions.php:215
 #, php-format
 msgid "EcoPower Tracker requires WordPress version 5.0 or higher. You are running version %s."
 msgstr ""
 
-#: includes/ecopower-tracker-functions.php:171
+#: includes/ecopower-tracker-functions.php:224
 msgid "EcoPower Tracker has been updated successfully."
+msgstr ""
+
+#: public/class-ecopower-tracker-public.php:158
+msgid "No project specified."
+msgstr ""
+
+#: public/class-ecopower-tracker-public.php:163
+msgid "Project not found."
 msgstr ""
 
 #: templates/admin/about.php:28
@@ -345,6 +770,7 @@ msgid "Shortcode"
 msgstr ""
 
 #: templates/admin/about.php:58
+#: templates/frontend/single-project.php:75
 msgid "Description"
 msgstr ""
 
@@ -430,11 +856,8 @@ msgstr ""
 msgid "EcoPower Tracker Dashboard"
 msgstr ""
 
-#: templates/admin/dashboard.php:29
-msgid "Add New Project"
-msgstr ""
-
 #: templates/admin/dashboard.php:37
+#: templates/frontend/statistics.php:12
 msgid "Total Projects"
 msgstr ""
 
@@ -447,6 +870,7 @@ msgid "Plant Type Distribution"
 msgstr ""
 
 #: templates/admin/dashboard.php:56
+#: templates/admin/project-list.php:31
 #: templates/frontend/display-project-data.php:33
 msgid "Plant Type"
 msgstr ""
@@ -456,6 +880,7 @@ msgid "Number of Projects"
 msgstr ""
 
 #: templates/admin/dashboard.php:58
+#: templates/frontend/statistics.php:18
 msgid "Total Capacity"
 msgstr ""
 
@@ -464,36 +889,43 @@ msgid "Recent Projects"
 msgstr ""
 
 #: templates/admin/dashboard.php:84
+#: templates/admin/project-form.php:36
+#: templates/admin/project-list.php:28
 #: templates/frontend/display-project-data.php:32
+#: templates/frontend/single-project.php:30
 msgid "Company"
 msgstr ""
 
 #: templates/admin/dashboard.php:85
+#: templates/frontend/projects-grid.php:16
 msgid "Type"
 msgstr ""
 
 #: templates/admin/dashboard.php:86
+#: templates/frontend/projects-grid.php:32
+#: templates/frontend/projects-grid.php:69
+#: templates/frontend/single-project.php:55
 msgid "Capacity"
 msgstr ""
 
 #: templates/admin/dashboard.php:87
 #: templates/frontend/display-project-data.php:36
+#: templates/frontend/projects-grid.php:30
 msgid "Activation Date"
 msgstr ""
 
 #: templates/admin/dashboard.php:88
+#: templates/admin/project-list.php:33
 msgid "Actions"
 msgstr ""
 
 #: templates/admin/dashboard.php:106
+#: templates/admin/project-list.php:47
 msgid "Edit"
 msgstr ""
 
-#: templates/admin/dashboard.php:110
-msgid "Are you sure you want to delete this project?"
-msgstr ""
-
 #: templates/admin/dashboard.php:111
+#: templates/admin/project-list.php:50
 msgid "Delete"
 msgstr ""
 
@@ -502,6 +934,8 @@ msgid "Tools"
 msgstr ""
 
 #: templates/admin/dashboard.php:126
+#: templates/admin/import-export.php:28
+#: templates/admin/import-export.php:78
 msgid "Import Projects"
 msgstr ""
 
@@ -510,11 +944,141 @@ msgid "Import CSV"
 msgstr ""
 
 #: templates/admin/dashboard.php:137
+#: templates/admin/import-export.php:11
+#: templates/admin/import-export.php:21
 msgid "Export Projects"
 msgstr ""
 
 #: templates/admin/dashboard.php:141
 msgid "Export CSV"
+msgstr ""
+
+#: templates/admin/import-export.php:8
+msgid "Import/Export Projects"
+msgstr ""
+
+#: templates/admin/import-export.php:12
+msgid "Export your projects to a CSV file. This file can be used to import projects into another installation."
+msgstr ""
+
+#: templates/admin/import-export.php:29
+msgid "Import projects from a CSV file. The file should be in the same format as the exported file."
+msgstr ""
+
+#: templates/admin/import-export.php:32
+msgid "CSV Format:"
+msgstr ""
+
+#: templates/admin/import-export.php:34
+msgid "First row should contain column headers"
+msgstr ""
+
+#: templates/admin/import-export.php:35
+msgid "Required columns: Project Number, Company, Project Name, Location, Type of Plant, Generation Capacity"
+msgstr ""
+
+#: templates/admin/import-export.php:36
+msgid "Optional columns: Project CUF, Date of Activation"
+msgstr ""
+
+#: templates/admin/import-export.php:37
+msgid "Date format: YYYY-MM-DD"
+msgstr ""
+
+#: templates/admin/import-export.php:48
+msgid "CSV File"
+msgstr ""
+
+#: templates/admin/import-export.php:52
+msgid "Select a CSV file to import."
+msgstr ""
+
+#: templates/admin/import-export.php:57
+msgid "Import Options"
+msgstr ""
+
+#: templates/admin/import-export.php:63
+msgid "Update existing projects with matching project numbers"
+msgstr ""
+
+#: templates/admin/import-export.php:68
+msgid "Skip first row (header row)"
+msgstr ""
+
+#: templates/admin/import-export.php:85
+#: templates/admin/import-export.php:91
+msgid "Download Sample CSV"
+msgstr ""
+
+#: templates/admin/import-export.php:86
+msgid "Download a sample CSV file to see the correct format for importing projects."
+msgstr ""
+
+#: templates/admin/project-form.php:8
+msgid "Edit Project"
+msgstr ""
+
+#: templates/admin/project-form.php:14
+msgid "Back to Projects"
+msgstr ""
+
+#: templates/admin/project-form.php:30
+msgid "A unique identifier for this project."
+msgstr ""
+
+#: templates/admin/project-form.php:56
+#: templates/admin/project-list.php:30
+#: templates/frontend/projects-grid.php:75
+#: templates/frontend/single-project.php:37
+msgid "Location"
+msgstr ""
+
+#: templates/admin/project-form.php:70
+msgid "Select a plant type"
+msgstr ""
+
+#: templates/admin/project-form.php:82
+msgid "Generation Capacity (MW)"
+msgstr ""
+
+#: templates/admin/project-form.php:87
+msgid "In megawatts (MW)"
+msgstr ""
+
+#: templates/admin/project-form.php:93
+msgid "Capacity Utilization Factor (CUF)"
+msgstr ""
+
+#: templates/admin/project-form.php:98
+msgid "As a percentage (0-100)"
+msgstr ""
+
+#: templates/admin/project-form.php:109
+msgid "Format: YYYY-MM-DD"
+msgstr ""
+
+#: templates/admin/project-form.php:116
+msgid "Update Project"
+msgstr ""
+
+#: templates/admin/project-form.php:116
+msgid "Add Project"
+msgstr ""
+
+#: templates/admin/project-form.php:119
+msgid "Cancel"
+msgstr ""
+
+#: templates/admin/project-list.php:16
+msgid "Projects"
+msgstr ""
+
+#: templates/admin/project-list.php:32
+msgid "Capacity (MW)"
+msgstr ""
+
+#: templates/admin/project-list.php:59
+msgid "No projects found. Add your first project using the button above."
 msgstr ""
 
 #: templates/frontend/display-project-data.php:34
@@ -543,4 +1107,75 @@ msgstr ""
 
 #: templates/frontend/display-project-data.php:79
 msgid "No projects found."
+msgstr ""
+
+#: templates/frontend/projects-grid.php:18
+msgid "All Types"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:28
+msgid "Sort By"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:36
+msgid "Descending"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:37
+msgid "Ascending"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:42
+msgid "Apply Filters"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:43
+msgid "Reset"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:82
+#: templates/frontend/single-project.php:47
+msgid "Activated"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:101
+msgid "View Details"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:117
+msgid "Previous"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:118
+msgid "Next"
+msgstr ""
+
+#: templates/frontend/projects-grid.php:126
+msgid "No projects found matching your criteria."
+msgstr ""
+
+#: templates/frontend/single-project.php:18
+msgid "Project ID:"
+msgstr ""
+
+#: templates/frontend/single-project.php:63
+msgid "CUF"
+msgstr ""
+
+#: templates/frontend/statistics.php:7
+msgid "Project Statistics"
+msgstr ""
+
+#: templates/frontend/statistics.php:27
+msgid "Projects by Type"
+msgstr ""
+
+#: templates/frontend/statistics.php:41
+msgid "Projects by Location"
+msgstr ""
+
+#. translators: %s: Last update date and time
+#: templates/frontend/statistics.php:57
+#, php-format
+msgid "Last updated: %s"
 msgstr ""
