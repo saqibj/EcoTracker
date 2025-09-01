@@ -5,7 +5,7 @@ All notable changes to the EcoPower Tracker plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.4.0] - 2025-01-27
+corrections
 ### 🔒 Security
 - **CRITICAL**: Fixed SQL injection vulnerability in dashboard statistics queries
 - **CRITICAL**: Eliminated potential "headers already sent" errors from malformed file structure
@@ -50,25 +50,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added proper error handling throughout the codebase
 
 ## [2.3.0] - 2025-01-26
-### Added
+### Added in 2.3.0
 - Modern WordPress features (REST API, Gutenberg blocks)
 - Comprehensive caching system for shortcodes
 - Cache management admin interface
 - Enhanced accessibility features
 - Improved error handling and logging
 
-### Changed
+### Changed in 2.3.0
 - Updated to WordPress 6.5+ compatibility
 - Enhanced security measures
 - Improved code structure and organization
 
-### Fixed
+### Fixed in 2.3.0
 - Namespace declaration issues
 - Asset loading problems
 - Template dependency issues
 
 ## [2.2.0] - 2025-08-21
-### Added
+### Added in 2.2.0
 - Frontend shortcodes for project display
 - AJAX-powered project filtering and pagination
 - Responsive project grid and single project views
@@ -79,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend JavaScript for interactive features
 - CSS styles for responsive design
 
-### Changed
+### Changed in 2.2.0
 - Improved database queries for better performance
 - Enhanced security with nonce verification
 - Updated admin interface for better usability
@@ -87,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored codebase for better maintainability
 - Updated documentation and inline code comments
 
-### Fixed
+### Fixed in 2.2.0
 - Fixed issues with CSV import/export
 - Resolved compatibility with WordPress 6.5+
 - Fixed responsive layout issues on mobile devices
@@ -95,33 +95,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed potential security vulnerabilities
 
 ## [2.1.0] - 2025-02-09
-### Added
+### Added in 2.1.0
 - Full compliance with WordPress best practices
 - Added translators comments for all placeholder strings
 - Refactored session usage to user meta for CSV processing
 - Added database optimization on plugin deactivation
 - Implemented proper error handling and logging
 
-### Changed
+### Changed in 2.1.0
 - Updated code documentation to meet WordPress standards
 - Improved database schema with proper indexes
 - Enhanced CSV import/export functionality
 - Optimized admin interface performance
 
-### Fixed
+### Fixed in 2.1.0
 - Fixed data sanitization issues
 - Resolved compatibility with PHP 8.0+
 - Fixed minor bugs in the admin interface
 
 ## [2.0.0] - 2024-11-15
-### Added
+### Added in 2.0.0
 - Initial public release
 - Core plugin functionality
 - Admin dashboard
 - Basic CSV import/export
 - Project management features
 
-### Changed
+### Changed in 2.0.0
 - Complete codebase refactoring
 - Improved security measures
 - Enhanced user interface
