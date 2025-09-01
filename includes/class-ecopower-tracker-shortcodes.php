@@ -69,17 +69,23 @@ class EcoPower_Tracker_Shortcodes {
      * @return string
      */
     public function display_total_power($atts) {
-        $cache_key = 'ecopower_tracker_total_power';
+        $cache_key = $this->get_versioned_cache_key('ecopower_tracker_total_power');
         $power = wp_cache_get($cache_key);
+        
         if (false === $power) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
             $power = $wpdb->get_var("
                 SELECT SUM(generation_capacity * project_cuf / 100)
                 FROM $table_name
             ");
-            wp_cache_set($cache_key, $power, '', 3600); // Cache for 1 hour
+            
+            // Cache for 1 hour, with fallback to 0 if null
+            $power = $power !== null ? floatval($power) : 0;
+            wp_cache_set($cache_key, $power, '', 3600);
         }
+        
         return $this->format_output(
             'total-power',
             __('Total Power Generation', 'ecopower-tracker'),
@@ -95,18 +101,23 @@ class EcoPower_Tracker_Shortcodes {
      * @return string
      */
     public function display_total_co2($atts) {
-        $cache_key = 'ecopower_tracker_total_co2';
+        $cache_key = $this->get_versioned_cache_key('ecopower_tracker_total_co2');
         $co2 = wp_cache_get($cache_key);
+        
         if (false === $co2) {
             global $wpdb;
             $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+            
             $power = $wpdb->get_var("
                 SELECT SUM(generation_capacity * project_cuf / 100)
                 FROM $table_name
             ");
+            
+            $power = $power !== null ? floatval($power) : 0;
             $co2 = $this->calculate_co2_offset($power);
             wp_cache_set($cache_key, $co2, '', 3600); // Cache for 1 hour
         }
+        
         return $this->format_output(
             'total-co2',
             __('Total CO2 Offset', 'ecopower-tracker'),
@@ -131,7 +142,7 @@ class EcoPower_Tracker_Shortcodes {
             return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
         }
 
-        $cache_key = 'ecopower_tracker_project_power_' . $project_id;
+        $cache_key = $this->get_versioned_cache_key('ecopower_tracker_project_power_' . $project_id);
         $power = wp_cache_get($cache_key);
         
         if (false === $power) {
@@ -145,12 +156,15 @@ class EcoPower_Tracker_Shortcodes {
             ", $project_id));
 
             if (null === $power) {
+                // Cache the null result to avoid repeated DB queries
+                wp_cache_set($cache_key, 'NOT_FOUND', '', 1800); // Cache for 30 minutes
                 return $this->error_message(__('Project not found', 'ecopower-tracker'));
             }
             
+            $power = floatval($power);
             wp_cache_set($cache_key, $power, '', 3600); // Cache for 1 hour
-        } elseif (null === $power) {
-            // Handle cached null value (project not found)
+        } elseif ('NOT_FOUND' === $power) {
+            // Handle cached not found result
             return $this->error_message(__('Project not found', 'ecopower-tracker'));
         }
 
@@ -179,7 +193,7 @@ class EcoPower_Tracker_Shortcodes {
             return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
         }
 
-        $cache_key = 'ecopower_tracker_project_co2_' . $project_id;
+        $cache_key = $this->get_versioned_cache_key('ecopower_tracker_project_co2_' . $project_id);
         $co2 = wp_cache_get($cache_key);
         
         if (false === $co2) {
@@ -193,11 +207,17 @@ class EcoPower_Tracker_Shortcodes {
             ", $project_id));
 
             if (null === $power) {
+                // Cache the null result to avoid repeated DB queries
+                wp_cache_set($cache_key, 'NOT_FOUND', '', 1800); // Cache for 30 minutes
                 return $this->error_message(__('Project not found', 'ecopower-tracker'));
             }
 
+            $power = floatval($power);
             $co2 = $this->calculate_co2_offset($power);
             wp_cache_set($cache_key, $co2, '', 3600); // Cache for 1 hour
+        } elseif ('NOT_FOUND' === $co2) {
+            // Handle cached not found result
+            return $this->error_message(__('Project not found', 'ecopower-tracker'));
         }
 
         return $this->format_output(
@@ -225,7 +245,7 @@ class EcoPower_Tracker_Shortcodes {
             return $this->error_message(__('Invalid project ID', 'ecopower-tracker'));
         }
 
-        $cache_key = 'ecopower_tracker_project_capacity_' . $project_id;
+        $cache_key = $this->get_versioned_cache_key('ecopower_tracker_project_capacity_' . $project_id);
         $capacity = wp_cache_get($cache_key);
         
         if (false === $capacity) {
@@ -239,12 +259,15 @@ class EcoPower_Tracker_Shortcodes {
             ", $project_id));
 
             if (null === $capacity) {
+                // Cache the null result to avoid repeated DB queries
+                wp_cache_set($cache_key, 'NOT_FOUND', '', 1800); // Cache for 30 minutes
                 return $this->error_message(__('Project not found', 'ecopower-tracker'));
             }
             
+            $capacity = floatval($capacity);
             wp_cache_set($cache_key, $capacity, '', 3600); // Cache for 1 hour
-        } elseif (null === $capacity) {
-            // Handle cached null value (project not found)
+        } elseif ('NOT_FOUND' === $capacity) {
+            // Handle cached not found result
             return $this->error_message(__('Project not found', 'ecopower-tracker'));
         }
 
@@ -654,14 +677,18 @@ class EcoPower_Tracker_Shortcodes {
         $value = is_numeric($value) ? number_format($value, 2) : 0;
         
         return sprintf(
-            '<div class="ecopower-tracker-%s">
-                <span class="label">%s:</span>
-                <span class="value">%s</span>
-                <span class="unit">%s</span>
+            '<div class="ecopower-tracker-%s" role="region" aria-labelledby="ecopower-label-%s">
+                <span class="label" id="ecopower-label-%s">%s:</span>
+                <span class="value" aria-describedby="ecopower-label-%s">%s</span>
+                <span class="unit" aria-label="%s">%s</span>
             </div>',
             esc_attr($class),
+            esc_attr($class),
+            esc_attr($class),
             esc_html($label),
+            esc_attr($class),
             esc_html($value),
+            esc_attr(sprintf(__('Unit: %s', 'ecopower-tracker'), $unit)),
             esc_html($unit)
         );
     }
@@ -674,7 +701,7 @@ class EcoPower_Tracker_Shortcodes {
      */
     private function error_message($message) {
         return sprintf(
-            '<div class="ecopower-tracker-error">%s</div>',
+            '<div class="ecopower-tracker-error" role="alert" aria-live="polite">%s</div>',
             esc_html($message)
         );
     }
@@ -687,22 +714,35 @@ class EcoPower_Tracker_Shortcodes {
      * @return void
      */
     public function clear_cache($project_id = null) {
-        // Clear total caches
-        wp_cache_delete('ecopower_tracker_total_power');
-        wp_cache_delete('ecopower_tracker_total_co2');
+        // Get current cache version for versioned keys
+        $version = get_option('ecopower_tracker_cache_version', 1);
+        
+        // Clear total caches (versioned)
+        wp_cache_delete('ecopower_tracker_total_power_v' . $version);
+        wp_cache_delete('ecopower_tracker_total_co2_v' . $version);
         
         if ($project_id) {
-            // Clear specific project caches
-            wp_cache_delete('ecopower_tracker_project_power_' . $project_id);
-            wp_cache_delete('ecopower_tracker_project_co2_' . $project_id);
-            wp_cache_delete('ecopower_tracker_project_capacity_' . $project_id);
+            // Clear specific project caches (versioned)
+            wp_cache_delete('ecopower_tracker_project_power_' . $project_id . '_v' . $version);
+            wp_cache_delete('ecopower_tracker_project_co2_' . $project_id . '_v' . $version);
+            wp_cache_delete('ecopower_tracker_project_capacity_' . $project_id . '_v' . $version);
         }
         
-        // For company, location, and type caches, we'd need to know the specific values
-        // or clear all with a cache group, but WordPress doesn't support cache groups
-        // in the default object cache, so we'll use a cache version approach instead
-        $cache_version = get_option('ecopower_tracker_cache_version', 1);
-        update_option('ecopower_tracker_cache_version', $cache_version + 1);
+        // Increment cache version to invalidate all versioned caches
+        // This effectively clears all company, location, and type caches
+        update_option('ecopower_tracker_cache_version', $version + 1);
+        
+        // Clear any WordPress transients we might be using
+        delete_transient('ecopower_tracker_stats_summary');
+        
+        // Log cache clearing for debugging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                'EcoPower Tracker: Cache cleared. Project ID: %s, New version: %d',
+                $project_id ? $project_id : 'all',
+                $version + 1
+            ));
+        }
     }
     
     /**
@@ -715,7 +755,77 @@ class EcoPower_Tracker_Shortcodes {
         $version = get_option('ecopower_tracker_cache_version', 1);
         return $key . '_v' . $version;
     }
+    
+    /**
+     * Warm up frequently accessed cache entries
+     * Should be called after cache clearing or on a scheduled basis
+     *
+     * @return void
+     */
+    public function warm_cache() {
+        // Warm up total statistics (most frequently accessed)
+        $this->display_total_power(array());
+        $this->display_total_co2(array());
+        
+        // Get a few recent projects to warm their cache
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
+        
+        $recent_projects = $wpdb->get_results(
+            "SELECT id FROM {$table_name} ORDER BY created_at DESC LIMIT 5",
+            ARRAY_A
+        );
+        
+        foreach ($recent_projects as $project) {
+            $project_id = $project['id'];
+            
+            // Warm up project-specific caches
+            $this->display_project_power(array('project_id' => $project_id));
+            $this->display_project_co2(array('project_id' => $project_id));
+            $this->display_project_capacity(array('project_id' => $project_id));
+        }
+        
+        // Log cache warming for debugging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                'EcoPower Tracker: Cache warmed for %d recent projects',
+                count($recent_projects)
+            ));
+        }
+    }
+    
+    /**
+     * Get cache statistics for debugging
+     *
+     * @return array Cache statistics
+     */
+    public function get_cache_stats() {
+        $version = get_option('ecopower_tracker_cache_version', 1);
+        $stats = array(
+            'cache_version' => $version,
+            'cached_keys' => array(),
+            'hit_rate' => 0,
+        );
+        
+        // Check common cache keys
+        $common_keys = array(
+            'ecopower_tracker_total_power_v' . $version,
+            'ecopower_tracker_total_co2_v' . $version,
+        );
+        
+        foreach ($common_keys as $key) {
+            $cached_value = wp_cache_get($key);
+            $stats['cached_keys'][$key] = ($cached_value !== false);
+        }
+        
+        return $stats;
+    }
 }
 
 // Initialize the shortcode functionalities
-new EcoPower_Tracker_Shortcodes();
+function ecopower_tracker_shortcodes_init() {
+    global $ecopower_tracker_shortcodes;
+    $ecopower_tracker_shortcodes = new EcoPower_Tracker_Shortcodes();
+    return $ecopower_tracker_shortcodes;
+}
+add_action('init', 'EcoPowerTracker\\ecopower_tracker_shortcodes_init');

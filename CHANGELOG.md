@@ -5,6 +5,68 @@ All notable changes to the EcoPower Tracker plugin will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2025-01-27
+### 🔒 Security
+- **CRITICAL**: Fixed SQL injection vulnerability in dashboard statistics queries
+- **CRITICAL**: Eliminated potential "headers already sent" errors from malformed file structure
+- Enhanced input sanitization and validation across all admin functions
+- Improved nonce verification for all form submissions
+
+### 🚀 Performance
+- **NEW**: Implemented comprehensive caching system for all shortcodes
+- **NEW**: Added cache versioning and automatic invalidation
+- **NEW**: Added cache warming functionality with scheduled cron jobs
+- **NEW**: Added cache management admin interface
+- Optimized database queries with proper indexing
+- Reduced server load with intelligent cache strategies
+
+### 🏗️ Architecture
+- **NEW**: Added REST API endpoints for modern integrations
+- **NEW**: Added Gutenberg block support for the block editor
+- **NEW**: Added cache administration interface
+- Fixed direct class instantiation issues in templates
+- Improved dependency injection patterns
+- Enhanced WordPress hook integration
+
+### 🎨 User Experience
+- **NEW**: Added accessibility improvements with ARIA attributes
+- **NEW**: Enhanced admin interface with better error handling
+- Fixed asset loading issues with proper WordPress enqueue system
+- Improved template structure and organization
+- Enhanced responsive design for mobile devices
+
+### 🛠️ Developer Experience
+- Fixed namespace declaration issues in template files
+- Improved code structure and maintainability
+- Enhanced error logging and debugging capabilities
+- Added comprehensive inline documentation
+- Improved autoloader functionality
+
+### 🔧 Technical Improvements
+- Fixed malformed file structures that could cause fatal errors
+- Improved WordPress Coding Standards compliance
+- Enhanced security with proper capability checks
+- Optimized memory usage and performance
+- Added proper error handling throughout the codebase
+
+## [2.3.0] - 2025-01-26
+### Added
+- Modern WordPress features (REST API, Gutenberg blocks)
+- Comprehensive caching system for shortcodes
+- Cache management admin interface
+- Enhanced accessibility features
+- Improved error handling and logging
+
+### Changed
+- Updated to WordPress 6.5+ compatibility
+- Enhanced security measures
+- Improved code structure and organization
+
+### Fixed
+- Namespace declaration issues
+- Asset loading problems
+- Template dependency issues
+
 ## [2.2.0] - 2025-08-21
 ### Added
 - Frontend shortcodes for project display

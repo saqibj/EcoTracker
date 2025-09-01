@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 /**
  * Create plugin database tables
  *
- * @return void
+ * @return bool True on success, false on failure
  */
 function ecopower_tracker_create_tables() {
     global $wpdb;
@@ -48,7 +48,15 @@ function ecopower_tracker_create_tables() {
     ) $charset_collate;";
 
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+    $result = dbDelta($sql);
+    
+    // Log table creation result
+    if (empty($result)) {
+        error_log('EcoPower Tracker: Database table creation may have failed');
+        return false;
+    }
+    
+    return true;
 }
 
 /**
@@ -263,4 +271,34 @@ if (!wp_next_scheduled('ecopower_tracker_daily_cleanup')) {
     wp_schedule_event(time(), 'daily', 'ecopower_tracker_daily_cleanup');
 }
 
-?>
+// Schedule cache warming (every 6 hours)
+if (!wp_next_scheduled('ecopower_tracker_cache_warm')) {
+    wp_schedule_event(time(), 'sixhourly', 'ecopower_tracker_cache_warm');
+}
+
+/**
+ * Warm up shortcode cache
+ *
+ * @return void
+ */
+function ecopower_tracker_warm_cache() {
+    global $ecopower_tracker_shortcodes;
+    
+    if ($ecopower_tracker_shortcodes && method_exists($ecopower_tracker_shortcodes, 'warm_cache')) {
+        $ecopower_tracker_shortcodes->warm_cache();
+    }
+}
+
+// Hook cache warming to scheduled event
+add_action('ecopower_tracker_cache_warm', 'EcoPowerTracker\\ecopower_tracker_warm_cache');
+
+// Add custom cron interval for cache warming
+add_filter('cron_schedules', function($schedules) {
+    if (!isset($schedules['sixhourly'])) {
+        $schedules['sixhourly'] = array(
+            'interval' => 6 * HOUR_IN_SECONDS,
+            'display' => __('Every 6 Hours', 'ecopower-tracker')
+        );
+    }
+    return $schedules;
+});

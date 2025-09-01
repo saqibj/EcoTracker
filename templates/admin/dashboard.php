@@ -1,9 +1,9 @@
-// Path: EcoPower-Tracker/templates/admin/dashboard.php
-// File: dashboard.php
-
 <?php
 /**
  * Admin dashboard template
+ *
+ * Path: EcoPower-Tracker/templates/admin/dashboard.php
+ * File: dashboard.php
  *
  * @package EcoPowerTracker
  * @since 2.0.1
@@ -15,9 +15,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get dashboard instance
-$dashboard = new EcoPower_Tracker_Dashboard();
-$stats = $dashboard->get_dashboard_stats();
+// Get dashboard stats - passed from the dashboard class
+if (!isset($stats)) {
+    // Fallback if stats not passed - get global dashboard instance
+    global $ecopower_tracker_dashboard;
+    $stats = $ecopower_tracker_dashboard ? $ecopower_tracker_dashboard->get_dashboard_stats() : array(
+        'total_projects' => 0,
+        'total_capacity' => 0,
+        'plant_types' => array(),
+        'recent_projects' => array()
+    );
+}
 ?>
 
 <div class="wrap ecopower-tracker-admin">
@@ -144,6 +152,14 @@ $stats = $dashboard->get_dashboard_stats();
     </div>
 </div>
 
-<style>
-<?php include ECOPOWER_TRACKER_PATH . 'assets/css/ecopower-tracker-admin.css'; ?>
-</style>
+<?php
+// Enqueue admin styles if not already enqueued
+if (!wp_style_is('ecopower-tracker-admin-css', 'enqueued')) {
+    wp_enqueue_style(
+        'ecopower-tracker-admin-css',
+        ECOPOWER_TRACKER_URL . 'assets/css/ecopower-tracker-admin.css',
+        array(),
+        ECOPOWER_TRACKER_VERSION
+    );
+}
+?>

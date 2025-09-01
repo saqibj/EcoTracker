@@ -1,6 +1,3 @@
-// Path: EcoPower-Tracker/includes/class-ecopower-tracker-dashboard.php
-// File: class-ecopower-tracker-dashboard.php
-
 <?php
 /**
  * Dashboard functionality
@@ -116,6 +113,9 @@ class EcoPower_Tracker_Dashboard {
             wp_die(__('Unauthorized access', 'ecopower-tracker'));
         }
 
+        // Get stats for template
+        $stats = $this->get_dashboard_stats();
+
         // Display dashboard content
         include ECOPOWER_TRACKER_PATH . 'templates/admin/dashboard.php';
     }
@@ -145,7 +145,7 @@ class EcoPower_Tracker_Dashboard {
     private function get_total_projects() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-        return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %1s", $table_name));
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
     }
 
     /**
@@ -156,7 +156,7 @@ class EcoPower_Tracker_Dashboard {
     private function get_total_capacity() {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
-        return (float) $wpdb->get_var($wpdb->prepare("SELECT SUM(generation_capacity) FROM %1s", $table_name));
+        return (float) $wpdb->get_var("SELECT SUM(generation_capacity) FROM {$table_name}");
     }
 
     /**
@@ -168,14 +168,14 @@ class EcoPower_Tracker_Dashboard {
         global $wpdb;
         $table_name = $wpdb->prefix . 'ecopower_tracker_projects';
         
-        $stats = $wpdb->get_results($wpdb->prepare("
+        $stats = $wpdb->get_results("
             SELECT 
                 type_of_plant,
                 COUNT(*) as count,
                 SUM(generation_capacity) as total_capacity
-            FROM %1s
+            FROM {$table_name} 
             GROUP BY type_of_plant
-        ", $table_name));
+        ");
 
         return array_map(function($stat) {
             return array(
@@ -183,7 +183,7 @@ class EcoPower_Tracker_Dashboard {
                 'count' => (int) $stat->count,
                 'capacity' => (float) $stat->total_capacity
             );
-        }, $stats);
+        }, $stats ?: array());
     }
 
     /**
@@ -198,52 +198,17 @@ class EcoPower_Tracker_Dashboard {
         
         return $wpdb->get_results($wpdb->prepare("
             SELECT *
-            FROM $table_name
+            FROM {$table_name}
             ORDER BY date_of_activation DESC
             LIMIT %d
         ", $limit));
     }
 }
 
-// Initialize the dashboard functionalities
-new EcoPower_Tracker_Dashboard();
-
-?>
-        // Display projects in a table
-        echo '<table class="widefat fixed" cellspacing="0">';
-        echo '<thead><tr>';
-        echo '<th>' . __('Project Number', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Project Company', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Project Name', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Project Location', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Type of Plant', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Generation Capacity (KWs)', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Date of Activation', 'ecopower-tracker') . '</th>';
-        echo '<th>' . __('Actions', 'ecopower-tracker') . '</th>';
-        echo '</tr></thead>';
-        echo '<tbody>';
-
-        foreach ($projects as $project) {
-            echo '<tr>';
-            echo '<td>' . esc_html($project->project_number) . '</td>';
-            echo '<td>' . esc_html($project->project_company) . '</td>';
-            echo '<td>' . esc_html($project->project_name) . '</td>';
-            echo '<td>' . esc_html($project->project_location) . '</td>';
-            echo '<td>' . esc_html($project->type_of_plant) . '</td>';
-            echo '<td>' . number_format($project->generation_capacity) . '</td>';
-            echo '<td>' . esc_html(date('Y-m-d', strtotime($project->date_of_activation))) . '</td>';
-            echo '<td>';
-            echo '<a href="' . admin_url('admin.php?page=ecopower-tracker-edit&project_id=' . $project->id) . '">' . __('Edit', 'ecopower-tracker') . '</a> | ';
-            echo '<a href="' . admin_url('admin.php?page=ecopower-tracker-delete&project_id=' . $project->id) . '" onclick="return confirm(\'' . __('Are you sure you want to delete this project?', 'ecopower-tracker') . '\')">' . __('Delete', 'ecopower-tracker') . '</a>';
-            echo '</td>';
-            echo '</tr>';
-        }
-
-        echo '</tbody></table>';
-    }
+// Initialize dashboard with proper WordPress hooks
+function ecopower_tracker_dashboard_init() {
+    global $ecopower_tracker_dashboard;
+    $ecopower_tracker_dashboard = new EcoPower_Tracker_Dashboard();
+    return $ecopower_tracker_dashboard;
 }
-
-// Initialize the dashboard functionalities
-new EcoPower_Tracker_Dashboard();
-
-?>
+add_action('admin_init', 'EcoPowerTracker\\ecopower_tracker_dashboard_init');

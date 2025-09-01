@@ -3,7 +3,7 @@
  * Plugin Name: EcoPower Tracker
  * Plugin URI: https://github.com/saqibj/EcoTracker
  * Description: Track and display renewable energy project data including power generation and CO2 offset calculations.
- * Version: 2.2.0
+ * Version: 2.4.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Saqib Jawaid
@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ECOPOWER_TRACKER_VERSION', '2.2.0');
+define('ECOPOWER_TRACKER_VERSION', '2.4.0');
 define('ECOPOWER_TRACKER_PATH', plugin_dir_path(__FILE__));
 define('ECOPOWER_TRACKER_URL', plugin_dir_url(__FILE__));
 
@@ -64,6 +64,9 @@ spl_autoload_register(function ($class) {
 // Include function files
 $required_files = [
     'includes/ecopower-tracker-functions.php',
+    'includes/class-ecopower-tracker-rest-api.php',
+    'includes/class-ecopower-tracker-blocks.php',
+    'includes/class-ecopower-tracker-cache-admin.php',
 ];
 
 foreach ($required_files as $file) {
@@ -129,7 +132,7 @@ class EcoPowerTracker {
      * of the plugin.
      */
     private function define_public_hooks() {
-        $plugin_public = new EcoPowerTracker_Public($this->get_plugin_name(), $this->get_version());
+        $plugin_public = new EcoPower_Tracker_Public($this->get_plugin_name(), $this->get_version());
 
         add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_styles'));
         add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_scripts'));

@@ -1,6 +1,19 @@
 <?php
 /**
  * The public-facing functionality of the plugin.
+ *
+ * @package EcoPowerTracker
+ * @since 2.0.1
+ */
+
+namespace EcoPowerTracker;
+
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
+/**
+ * Class EcoPower_Tracker_Public
  */
 class EcoPower_Tracker_Public {
 

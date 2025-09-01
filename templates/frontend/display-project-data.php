@@ -1,9 +1,9 @@
-// Path: EcoPower-Tracker/templates/frontend/display-project-data.php
-// File: display-project-data.php
-
 <?php
 /**
  * Frontend project data display template
+ *
+ * Path: EcoPower-Tracker/templates/frontend/display-project-data.php
+ * File: display-project-data.php
  *
  * @package EcoPowerTracker
  * @since 2.0.1
@@ -143,6 +143,14 @@ $columns = isset($args['columns']) ? (array) $args['columns'] : array(
     </div>
 </div>
 
-<style>
-<?php include ECOPOWER_TRACKER_PATH . 'assets/css/ecopower-tracker-frontend.css'; ?>
-</style>
+<?php
+// Enqueue frontend styles if not already enqueued
+if (!wp_style_is('ecopower-tracker-frontend', 'enqueued')) {
+    wp_enqueue_style(
+        'ecopower-tracker-frontend',
+        ECOPOWER_TRACKER_URL . 'assets/css/ecopower-tracker-frontend.css',
+        array(),
+        ECOPOWER_TRACKER_VERSION
+    );
+}
+?>

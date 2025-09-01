@@ -47,7 +47,13 @@ class EcoPower_Tracker_DB {
             $this->get_format_for_data($sanitized_data)
         );
         
-        return $result ? $wpdb->insert_id : false;
+        if ($result) {
+            // Clear shortcode cache when a new project is added
+            $this->clear_shortcode_cache();
+            return $wpdb->insert_id;
+        }
+        
+        return false;
     }
     
     /**
@@ -140,13 +146,20 @@ class EcoPower_Tracker_DB {
         }
         
         // Update the project
-        return (bool) $wpdb->update(
+        $result = $wpdb->update(
             $this->table_name,
             $sanitized_data,
             array('id' => $id),
             $this->get_format_for_data($sanitized_data),
             array('%d') // Where format (id is integer)
         );
+        
+        if ($result !== false) {
+            // Clear shortcode cache when a project is updated
+            $this->clear_shortcode_cache($id);
+        }
+        
+        return (bool) $result;
     }
     
     /**
@@ -159,11 +172,18 @@ class EcoPower_Tracker_DB {
         global $wpdb;
         $id = absint($id);
         
-        return (bool) $wpdb->delete(
+        $result = $wpdb->delete(
             $this->table_name,
             array('id' => $id),
             array('%d')
         );
+        
+        if ($result) {
+            // Clear shortcode cache when a project is deleted
+            $this->clear_shortcode_cache($id);
+        }
+        
+        return (bool) $result;
     }
     
     /**
@@ -230,6 +250,31 @@ class EcoPower_Tracker_DB {
         }
         
         return $formats;
+    }
+    
+    /**
+     * Clear shortcode cache
+     * 
+     * @param int $project_id Optional project ID to clear specific cache
+     * @return void
+     */
+    private function clear_shortcode_cache($project_id = null) {
+        // Get the shortcodes instance and clear its cache
+        global $ecopower_tracker_shortcodes;
+        
+        if ($ecopower_tracker_shortcodes && method_exists($ecopower_tracker_shortcodes, 'clear_cache')) {
+            $ecopower_tracker_shortcodes->clear_cache($project_id);
+        } else {
+            // Fallback: manually increment cache version
+            $cache_version = get_option('ecopower_tracker_cache_version', 1);
+            update_option('ecopower_tracker_cache_version', $cache_version + 1);
+        }
+        
+        // Clear any related transients
+        delete_transient('ecopower_tracker_project_stats');
+        
+        // Fire action hook for other plugins/themes to hook into
+        do_action('ecopower_tracker_cache_cleared', $project_id);
     }
 }
 
